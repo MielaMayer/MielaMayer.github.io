@@ -11,7 +11,8 @@ const PW = "/Users/mioli/Library/Mobile Documents/com~apple~CloudDocs/Miela Comp
 const PAPERS = [
   { docx: `${PW}/Learning to let Nature do the Work (final with footnotes).docx`, out: "learning-to-let-nature.html",
     title: "Learning to Let Nature Do the Work", subtitle: "A Review of Permaculture's Potential within the American Agriculture Industry",
-    accent: "#3f6b4a", titleRx: /Learning to Let Nature/i },
+    accent: "#3f6b4a", titleRx: /Learning to Let Nature/i,
+    coverNote: `See the second chapter of this piece — <a href="https://mielamayer.github.io/pdfs/agroforestry-yield-gap.pdf">Questioning our Yield Gap: Agroforestry's Potential within the American Agriculture Industry</a>.` },
   { docx: `${PW}/FinalDraftEPL.docx`, out: "agroforestry-yield-gap.html",
     title: "Questioning our Yield Gap", subtitle: "Agroforestry's Potential within the American Agriculture Industry",
     accent: "#9a5a25", titleRx: /Questioning our Yield Gap/i,
@@ -71,7 +72,7 @@ function template(p, body) {
 
 for (const p of PAPERS) {
   const result = await mammoth.convertToHtml({ path: p.docx });
-  let body = stripBlocks(result.value, [/\bEVST\b/i, /Final\s*Paper/i, /^Miela\s+Mayer$/i, p.titleRx]);
+  let body = stripBlocks(result.value, [/\bEVST\b/i, /Final\s*Paper/i, /^Miela\s+Mayer$/i, /Barbara\s+Stuart/i, /English\s*114/i, /Section\s*23/i, p.titleRx]);
   body = body.replace(/<p>\s*(<img[^>]*>)\s*<\/p>/gis, '<figure class="fig">$1</figure>');
   const imgs = (result.value.match(/<img/gi) || []).length;
   const tables = (result.value.match(/<table/gi) || []).length;
