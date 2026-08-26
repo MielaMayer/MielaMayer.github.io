@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Ocean CDR · Center of Excellence</title>
+<style>
+  :root {
+    --ink: #141816; --muted: #5c6860; --line: #d5ddd6; --paper: #f6f4ee;
+    --card: #fff; --accent: #8b1e1e; --sea: #1a4a5c; --good: #1e5c38;
+    --step: #1430c0; --chip: #eef2ee;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--paper); color: var(--ink);
+    font: 16.5px/1.55 "Iowan Old Style", Palatino, Georgia, serif; }
+  a { color: var(--sea); }
+  nav {
+    position: sticky; top: 0; z-index: 5; background: rgba(246,244,238,.94);
+    border-bottom: 1px solid var(--line); backdrop-filter: blur(8px);
+    display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 10px 22px;
+    font: 12.5px/1.3 ui-sans-serif, system-ui, sans-serif;
+  }
+  nav a { color: var(--muted); text-decoration: none; }
+  nav a:hover { color: var(--ink); }
+  main { max-width: 1080px; margin: 0 auto; padding: 28px 22px 80px; }
+  .seealso { font: 12.5px/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--muted); margin: 0 0 14px; }
+  .seealso a { color: var(--sea); }
+  .center { text-align: center; border: 2px solid var(--ink); padding: 28px 20px; background: var(--card); }
+  .center .kicker { font: 12px ui-sans-serif, system-ui; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .center h1 { font-size: 2.1rem; margin: .35rem 0 .2rem; letter-spacing: -0.02em; }
+  .center h1 em { color: var(--accent); font-style: normal; }
+  .lede { color: var(--muted); max-width: 46rem; margin: .6rem auto 0; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 1.15rem 1.35rem; margin: 1.1rem 0; }
+  section h2 { margin: 0 0 .45rem; font-size: 1.18rem; }
+  .step { color: var(--step); font: 600 0.78rem ui-sans-serif, system-ui; }
+  .field { color: #7a8680; font: 12px ui-monospace, Menlo, monospace; }
+  .tier { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: .75rem; }
+  .tier > div { border: 1px dashed var(--line); border-radius: 8px; padding: .65rem .8rem; }
+  .tier h3 { margin: 0 0 .35rem; font: 650 0.92rem ui-sans-serif, system-ui; }
+  ul { margin: .4rem 0 .2rem; padding-left: 1.15rem; }
+  li { margin: .28rem 0; }
+  .rxn { font: 13.5px/1.45 "IBM Plex Mono", ui-monospace, Menlo, monospace; background: #111814; color: #cfe8dc; padding: 10px 12px; border-radius: 8px; overflow-x: auto; }
+  .mols { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
+  .mol { background: #121a22; color: #d5e0e6; border-radius: 10px; padding: 8px 10px 10px; width: 200px; font: 12px/1.35 ui-sans-serif, system-ui; }
+  .mol strong { display: block; color: #fff; font-size: 12.5px; margin-bottom: 4px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .chip { background: var(--chip); border-radius: 999px; padding: 2px 9px; font: 12px ui-sans-serif, system-ui; }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  th, td { text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); padding: 7px 8px; }
+  th { font: 600 11px ui-sans-serif, system-ui; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .warn { background: #fff7e6; border-left: 3px solid #c48900; padding: 8px 10px; }
+  .bad { background: #fceceb; border-left: 3px solid var(--accent); padding: 8px 10px; }
+  .good { background: #eaf5ee; border-left: 3px solid var(--good); padding: 8px 10px; }
+  .q { font-size: 1.05rem; }
+  footer { color: var(--muted); font-size: 13px; margin-top: 2rem; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="#intake">Intake</a>
+  <a href="#how">How it works</a>
+  <a href="#shifts">Paradigm shifts</a>
+  <a href="#chem">Carbonate chemistry</a>
+  <a href="#routes">Routes</a>
+  <a href="#industry">Industry</a>
+  <a href="#coe">Institutions</a>
+  <a href="#skills">Skills</a>
+  <a href="#people">People</a>
+  <a href="#mrv">MRV</a>
+  <a href="#links">Links</a>
+</nav>
+<main>
+
+<p class="seealso">See also: <a href="https://mielamayer.github.io/ocean-cdr.html">CDR deep dive</a> — a chemistry-first visual explainer on the alkalinity/DIC ledger, coccolithophores, and a Gigablue case study.</p>
+
+<section class="center" id="intake">
+  <div class="kicker">Center of Excellence reconnaissance</div>
+  <h1>Ocean CDR <em>{marine biogeochemistry}</em></h1>
+  <div>Carbonate chemistry · alkalinity · biological pump · enhanced weathering</div>
+  <p class="lede">A structured map of marine carbon dioxide removal: the chemistry that actually moves carbon, the routes that claim to, and the labs and companies defining the field.</p>
+  <p class="field">domain: ocean CDR / OAE / ERW / BCP · geo: global, coastal + EEZ + farmland runoff · horizon: 10<sup>1</sup>–10<sup>4</sup> years · objective: geologic-scale, measurable, durable drawdown</p>
+</section>
+
+<section id="how">
+  <h2>How this knowledge space works</h2>
+  <p class="step">The spine — read this before the org chart</p>
+  <p>The atmosphere and the surface ocean share carbon dioxide. When CO<sub>2</sub> dissolves it does not stay a gas in the drink. It reacts. Most of it becomes <b>bicarbonate</b> (HCO<sub>3</sub><sup>−</sup>). A smaller share becomes <b>carbonate</b> (CO<sub>3</sub><sup>2−</sup>). Together with leftover dissolved CO<sub>2</sub> they are <b>DIC — dissolved inorganic carbon</b>. The ocean already holds on the order of forty to fifty times more carbon than the air, almost all as those ions.</p>
+  <p><b>Alkalinity</b> (often written TA, total alkalinity) is not “how much carbon.” It is how many protons (H<sup>+</sup>) the water can soak up. Bicarbonate is worth one unit, carbonate two, hydroxide one. Sulfate is doubly charged and worth <em>zero</em>, because at seawater pH it will not take a proton. Charge ≠ drawdown.</p>
+  <p>Add base — dissolve olivine or basalt, dose magnesium hydroxide, run an electrochemical cell, dissolve limestone in high-CO<sub>2</sub> wastewater — and you consume protons. The carbonate equilibrium shifts: dissolved CO<sub>2</sub> becomes bicarbonate. The surface is then short of CO<sub>2</sub> relative to the air, so more CO<sub>2</sub> crosses in. That extra carbon sits as HCO<sub>3</sub><sup>−</sup> for ~10,000 years if you do not let it crash out as rock. That is <b>ocean alkalinity enhancement (OAE)</b>. <b>Enhanced rock weathering (ERW)</b> is the same chemistry started on a field; rain and soil acids do the dissolving; rivers deliver the bicarbonate.</p>
+  <p>Build a shell and you run the reaction backwards. Calcite (CaCO<sub>3</sub>) takes two bicarbonates and keeps one carbon; the other leaves as CO<sub>2</sub>. Calcification from seawater alkalinity is a CO<sub>2</sub> <em>source</em> per mole of shell, or at best a half-efficient durable sink if you insist on counting the carbon left in the mineral.</p>
+  <p>Photosynthesis is a third ledger. It builds <b>POC — particulate organic carbon</b>, soft tissue. That carbon is only “removed” until something eats it. <b>PIC — particulate inorganic carbon</b> is the mineral particles (coccoliths, shell hash). <b>PIC:POC</b> is how shell-heavy a cell or a bloom is. The <b>biological carbon pump</b> is the natural process that sends some POC (and PIC ballast) downward as marine snow. Most of it is respired in the top few hundred meters. Enhancing that pump means competing for the same nutrients the food web already uses, and then proving a stranger’s carbon actually arrived at depth.</p>
+  <p class="q"><b>The sorting question for every lab and company:</b> after the intervention, where is the extra carbon, in what molecule, and how would a stranger measure that it is still there a year later?</p>
+</section>
+
+<section id="shifts">
+  <h2>Paradigm shifts <span class="step">· Step 1</span></h2>
+  <ul>
+    <li><b>Store as rock</b> → <b>store as dissolved bicarbonate</b> — precipitation halves efficiency; DIC for ~10<sup>4</sup> yr is “durable enough” for climate, even if it offends a geologist’s sense of forever.</li>
+    <li><b>Grow biomass = sink</b> → <b>biomass is a leaky inventory</b> — the climate product is permanence + MRV, not wet tons of algae.</li>
+    <li><b>Open-ocean fertilization as the big lever</b> → <b>point-source alkalinity and farmland ERW</b> — outfalls, wastewater, existing tractors beat mid-ocean science projects on measurability.</li>
+    <li><b>Credits will fund Gt scale</b> → <b>philanthropy + public MRV + offtakes like Frontier, not a carbon coin</b> — verification is the scarce asset that any new entrant has to solve before revenue.</li>
+    <li><b>Building objects won’t scale / growing will</b> → <b>the constraint is chemistry and proof, not whether the actuator is a cell or a mill</b> — ERW already uses farm equipment; calcification “grows” a CO<sub>2</sub> source.</li>
+  </ul>
+</section>
+
+<section id="chem">
+  <h2>Carbonate chemistry, with pictures</h2>
+  <div class="mols">
+    <div class="mol">
+      <strong>CO₂ · TA +0</strong>
+      <svg viewBox="0 0 180 70" width="180" height="70">
+        <line x1="40" y1="32" x2="140" y2="32" stroke="#c9a227" stroke-width="5"/>
+        <line x1="40" y1="40" x2="140" y2="40" stroke="#c9a227" stroke-width="5"/>
+        <circle cx="34" cy="36" r="16" fill="#c4788a"/><text x="34" y="41" text-anchor="middle" fill="#2a1020" font-size="12" font-weight="700" font-family="ui-sans-serif">O</text>
+        <circle cx="90" cy="36" r="16" fill="#7eb0d4"/><text x="90" y="41" text-anchor="middle" fill="#102028" font-size="12" font-weight="700" font-family="ui-sans-serif">C</text>
+        <circle cx="146" cy="36" r="16" fill="#c4788a"/><text x="146" y="41" text-anchor="middle" fill="#2a1020" font-size="12" font-weight="700" font-family="ui-sans-serif">O</text>
+      </svg>
+      Linear O=C=O. Exchanges with air. Neutral — no alkalinity.
+    </div>
+    <div class="mol">
+      <strong>HCO₃⁻ · TA +1 · ~90% of DIC</strong>
+      <svg viewBox="0 0 160 100" width="160" height="90">
+        <line x1="80" y1="42" x2="80" y2="16" stroke="#c9a227" stroke-width="4"/>
+        <line x1="80" y1="46" x2="36" y2="78" stroke="#c9a227" stroke-width="4"/>
+        <line x1="80" y1="46" x2="128" y2="78" stroke="#6a9a6a" stroke-width="4"/>
+        <circle cx="80" cy="44" r="14" fill="#7eb0d4"/><text x="80" y="48" text-anchor="middle" fill="#102028" font-size="11" font-weight="700" font-family="ui-sans-serif">C</text>
+        <circle cx="80" cy="12" r="12" fill="#c4788a"/><text x="80" y="16" text-anchor="middle" fill="#2a1020" font-size="10" font-weight="700" font-family="ui-sans-serif">O</text>
+        <circle cx="32" cy="82" r="12" fill="#c4788a"/><text x="32" y="86" text-anchor="middle" fill="#2a1020" font-size="10" font-weight="700" font-family="ui-sans-serif">O</text>
+        <circle cx="132" cy="82" r="13" fill="#6a9a72"/><text x="132" y="86" text-anchor="middle" fill="#102010" font-size="9" font-weight="700" font-family="ui-sans-serif">OH</text>
+      </svg>
+      The workhorse store. One proton acceptor.
+    </div>
+    <div class="mol">
+      <strong>CO₃²⁻ · TA +2</strong>
+      <svg viewBox="0 0 160 100" width="160" height="90">
+        <line x1="80" y1="44" x2="80" y2="14" stroke="#c9a227" stroke-width="4"/>
+        <line x1="80" y1="44" x2="36" y2="80" stroke="#c9a227" stroke-width="4"/>
+        <line x1="80" y1="44" x2="124" y2="80" stroke="#c9a227" stroke-width="4"/>
+        <circle cx="80" cy="44" r="14" fill="#7eb0d4"/><text x="80" y="48" text-anchor="middle" fill="#102028" font-size="11" font-weight="700" font-family="ui-sans-serif">C</text>
+        <circle cx="80" cy="12" r="12" fill="#c4788a"/><text x="80" y="16" text-anchor="middle" fill="#2a1020" font-size="10" font-weight="700" font-family="ui-sans-serif">O</text>
+        <circle cx="32" cy="84" r="12" fill="#c4788a"/><text x="32" y="88" text-anchor="middle" fill="#2a1020" font-size="10" font-weight="700" font-family="ui-sans-serif">O</text>
+        <circle cx="128" cy="84" r="12" fill="#c4788a"/><text x="128" y="88" text-anchor="middle" fill="#2a1020" font-size="10" font-weight="700" font-family="ui-sans-serif">O</text>
+      </svg>
+      Pulls CO₂ from air. Too much + Ca²⁺ → calcite crashes out.
+    </div>
+    <div class="mol">
+      <strong>OH⁻ · TA +1</strong>
+      What lime and electrochemical OAE actually deliver.
+    </div>
+    <div class="mol">
+      <strong>SO₄²⁻ / Cl⁻ · TA +0</strong>
+      Abundant spectators. Proof that “negative ion” ≠ alkalinity.
+    </div>
+    <div class="mol">
+      <strong>CaCO₃ calcite</strong>
+      Limestone, chalk, marble, shells, coccoliths. One C in the lattice.
+    </div>
+  </div>
+  <div class="rxn">CO₂(air) ⇌ CO₂(aq) + H₂O ⇌ H₂CO₃ ⇌ H⁺ + HCO₃⁻ ⇌ 2H⁺ + CO₃²⁻</div>
+  <p></p>
+  <div class="rxn">Olivine (ideal): Mg₂SiO₄ + 4 CO₂ + 4 H₂O → 2 Mg²⁺ + 4 HCO₃⁻ + H₄SiO₄</div>
+  <p></p>
+  <div class="rxn">Lime: Ca(OH)₂ + 2 CO₂ → Ca²⁺ + 2 HCO₃⁻</div>
+  <p></p>
+  <div class="rxn">Limestone in high-CO₂ water (Crew): CaCO₃ + CO₂ + H₂O → Ca²⁺ + 2 HCO₃⁻</div>
+  <p></p>
+  <div class="rxn">Calcification / unwanted precipitation: Ca²⁺ + 2 HCO₃⁻ → CaCO₃ + CO₂ + H₂O</div>
+  <div class="chips">
+    <span class="chip">basalt = lava rock (plagioclase + pyroxene + olivine)</span>
+    <span class="chip">olivine = green sand (Mg,Fe)₂SiO₄</span>
+    <span class="chip">brucite = Mg(OH)₂</span>
+    <span class="chip">slaked lime = Ca(OH)₂</span>
+    <span class="chip">quicklime = CaO (making it emits CO₂)</span>
+  </div>
+  <p><b>Numbers:</b> cropland ERW potential ~0.5–2 Gt CO₂/yr by 2050 (Beerling et al. 2020) · OAE plausible Gt-scale with siting caveats · DIC lifetime ~10⁴ yr · wastewater CO₂ up to ~100× atmospheric equilibrium · human emissions ~40 Gt/yr.</p>
+</section>
+
+<section id="routes">
+  <h2>Routes — four sectors, one ledger</h2>
+  <table>
+    <tr><th>Sector</th><th>Actuator</th><th>Carbon’s molecule</th><th>Failure mode</th></tr>
+    <tr><td><b>OAE</b></td><td>Add alkali to seawater</td><td>HCO₃⁻</td><td>Overshoot → CaCO₃ precipitates; half the tons vanish as CO₂</td></tr>
+    <tr><td><b>ERW</b></td><td>Crush silicate on fields</td><td>HCO₃⁻ via rivers</td><td>Did it dissolve, or is the dust still sitting there?</td></tr>
+    <tr><td><b>Biological pump</b></td><td>Grow / ballast plankton or kelp</td><td>POC (± PIC)</td><td>Eaten; nutrients stolen; unmeasured export</td></tr>
+    <tr><td><b>Calcifier materials</b></td><td>Grow CaCO₃ on waste alkali</td><td>solid carbonate product</td><td>Alkali must be imported; market is not Gt</td></tr>
+  </table>
+  <p class="warn"><b>Coccolithophores sit on the joint of pump + calcification.</b> Photosynthesis writes POC. Plates write PIC and vent CO₂. They only help as (a) ballast for export you can prove, or (b) a harvested mineral whose alkalinity came from waste, not seawater. There is no third path that makes seawater-fed shell growth a full sink.</p>
+</section>
+
+<section id="industry">
+  <h2>Industry <span class="step">· Step 3</span></h2>
+  <div class="tier">
+    <div>
+      <h3>Established adopters / buyers</h3>
+      <ul>
+        <li><b>Frontier</b> — $1.8B advance market commitment across Stripe, Alphabet, Meta, Shopify, McKinsey, and (from 2026) Anthropic, Google, Salesforce and H&amp;M. The serious offtake.</li>
+        <li>Microsoft, Stripe, Shopify historical CDR buyers — set early OAE/ERW contracts.</li>
+        <li>Wastewater utilities (Crew’s channel) and coastal outfalls (Planetary’s channel) — existing pipes.</li>
+        <li>Row-crop agriculture — the ERW “factory” already exists as spreaders.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Prime movers</h3>
+      <ul>
+        <li><b>Planetary</b> — Mg(OH)₂ at outfalls. Point-source OAE.</li>
+        <li><b>Ebb Carbon</b> — electrochemical alkalinity from seawater.</li>
+        <li><b>Crew Carbon</b> — limestone + wastewater (up to ~100× atmospheric CO₂ concentration). Yale spinout (Katchinoff/Planavsky).</li>
+        <li><b>Lithos</b> — basalt on US farmland. Planavsky/Reinhard lab lineage.</li>
+        <li><b>Mati Carbon</b> (India), <b>Terradot</b> (Brazil) — same ERW play, tropics. Mati won the $50M XPRIZE Carbon Removal grand prize in 2025.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Disruptors / contested</h3>
+      <ul>
+        <li><b>Vesta</b> — coastal olivine. Dissolution + Ni/Cr release is a monitored, open concern; early site data show no accumulation yet.</li>
+        <li><b>GigaBlue</b> — mineral-ballasted marine snow. Not OAE. MRV of arrival is the hole. See the <a href="https://mielamayer.github.io/ocean-cdr.html">deep dive</a> for a full case study.</li>
+        <li><b>Marnova</b> — kelp co-settled with calcifying-organism larvae as ballast, aiming for export past the thermocline. Early-stage; mechanism not independently verified.</li>
+        <li><b>Bloomineral</b> — algae-driven biomineralization: waste alkalinity (demolition/soda-ash/sugar-industry waste) converted to CaCO₃ for paint, cement and polymer products.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="coe">
+  <h2>Centers of excellence &amp; organizations <span class="step">· Step 3</span></h2>
+  <ul>
+    <li><b>Yale Center for Natural Carbon Capture (YCNCC)</b> — natural carbon capture and enhanced weathering research; Noah Planavsky geochem group among its affiliated labs. Field partners wanted.</li>
+    <li><b>Ocean Visions</b> — the map (their mCDR roadmap covers export/avoided-degradation holes). Coordinating with EDF on a phytoplankton carbon research program (RFPs expected late 2026/early 2027).</li>
+    <li><b>Carbon to Sea Initiative</b> — $5M "Global OAE Field Research Network" RFP plus a $1M targeted research track, part of a larger $50M+ effort backed by Additional Ventures.</li>
+    <li><b>ORCA (Ocean Resilience and Climate Alliance)</b> — $300M+ philanthropic coalition (Bloomberg Philanthropies, Rockefeller Brothers Fund, and others) where marine CDR is one of seven priorities.</li>
+    <li><b>Renaissance Philanthropy</b> — climate-funding intermediary active in the broader carbon-removal philanthropy space.</li>
+    <li>GEOMAR, PML, WHOI, MBARI, University of Exeter, Heriot-Watt, Dalhousie — classical marine carbonate labs; Dalhousie and GEOMAR co-run the "Ocean Alk-Align" OAE project, PML and Exeter co-lead SeaCURE and related OAE workshops.</li>
+    <li>Standards / methods: best-practice OAE guides (Ocean Visions, NASEM ocean CDR), new PIC:POC protocol (this year).</li>
+  </ul>
+</section>
+
+<section id="skills">
+  <h2>Core competencies &amp; skills <span class="step">· Step 2</span></h2>
+  <ul>
+    <li>Seawater carbonate system (DIC, TA, pH, pCO₂, speciation) and the Revelle factor</li>
+    <li>Silicate weathering kinetics (olivine vs basalt vs limestone)</li>
+    <li>Biological pump: export efficiency, Martin curve, ballast hypothesis, PIC:POC</li>
+    <li>MRV design: tracers, mixing models, air–sea flux, additionality</li>
+    <li>Tools: coulometric DIC, open-cell TA titration, GC-MS, ICP-MS for cations, sat imagery for blooms</li>
+    <li>Feedstock logistics: slag, demolition fines, mine tailings vs coasts and cement plants</li>
+    <li>Honesty about scale: Gt math, not demo-tank math</li>
+  </ul>
+</section>
+
+<section id="people">
+  <h2>Key players <span class="step">· Step 4</span></h2>
+  <ul>
+    <li><b>Noah Planavsky</b> — Yale geochemist. Lithos + Crew Carbon lineage. ERW + wastewater limestone.</li>
+  </ul>
+  <p class="field">Long tail to fill later: Ocean Visions authors, Carbon to Sea grantees, GigaBlue scientific advisors, Vesta researchers on olivine Ni/Cr, PIC:POC protocol authors.</p>
+</section>
+
+<section id="mrv">
+  <h2>MRV is the product</h2>
+  <ul>
+    <li><b>OAE / ERW:</b> alkali added, cations released, extra DIC after mixing and air–sea exchange. Never count precipitated CaCO₃ as a full tonne.</li>
+    <li><b>Bio export:</b> flux at depth, remineralization profile, additionality vs the natural pump. No cheap trusted meter. GigaBlue lives or dies here.</li>
+    <li><b>Materials:</b> mass of product − process emissions − origin of the alkali.</li>
+  </ul>
+  <p>A modest research budget can buy a closed-tank mass balance that <em>shows</em> the 2 HCO₃⁻ → CO₂ vent, a PIC:POC strain comparison under the new protocol, or a public waste-alkali map. It cannot buy “we learned to grow coccolithophores at climate scale.”</p>
+</section>
+
+<section id="links">
+  <h2>Useful links <span class="step">· checked</span></h2>
+  <p>Every URL below was fetched and confirmed live before publishing.</p>
+
+  <h3 style="font:650 0.95rem ui-sans-serif,system-ui;margin:1rem 0 .35rem">Primers &amp; field maps</h3>
+  <ul>
+    <li><a href="https://oceanvisions.org/" target="_blank" rel="noopener">Ocean Visions</a> — hub</li>
+    <li><a href="https://www2.oceanvisions.org/roadmaps/remove/mcdr/" target="_blank" rel="noopener">Ocean Visions mCDR roadmap</a></li>
+    <li><a href="https://oceanvisions.org/mcdr-database/" target="_blank" rel="noopener">Ocean Visions mCDR database</a></li>
+    <li><a href="https://oceanvisions.org/mcdr-field-trials/" target="_blank" rel="noopener">Ocean Visions field-trial tracker</a></li>
+    <li><a href="https://oceanvisions.org/phytoplankton-cdr/" target="_blank" rel="noopener">Ocean Visions — phytoplankton CDR</a></li>
+    <li><a href="https://nap.nationalacademies.org/catalog/26278/a-research-strategy-for-ocean-based-carbon-dioxide-removal-and-sequestration" target="_blank" rel="noopener">NASEM research strategy for ocean CDR</a></li>
+    <li><a href="https://www.carbontosea.org/" target="_blank" rel="noopener">Carbon to Sea</a></li>
+    <li><a href="https://naturalcarboncapture.yale.edu/" target="_blank" rel="noopener">Yale Center for Natural Carbon Capture</a></li>
+    <li><a href="https://www.pmel.noaa.gov/co2/" target="_blank" rel="noopener">NOAA PMEL carbon program</a></li>
+    <li><a href="https://oceanservice.noaa.gov/facts/acidification.html" target="_blank" rel="noopener">NOAA — ocean acidification (same chemistry)</a></li>
+    <li><a href="https://oceanservice.noaa.gov/facts/coccolithophore.html" target="_blank" rel="noopener">NOAA — coccolithophores</a></li>
+    <li><a href="https://science.nasa.gov/earth/earth-observatory/coccolithophores/" target="_blank" rel="noopener">NASA Earth Observatory — coccolithophores</a></li>
+    <li><a href="https://en.wikipedia.org/wiki/Coccolithophore" target="_blank" rel="noopener">Wikipedia — coccolithophore</a> (use for pictures, then go to papers)</li>
+    <li><a href="https://en.wikipedia.org/wiki/Enhanced_weathering" target="_blank" rel="noopener">Wikipedia — enhanced weathering</a></li>
+  </ul>
+
+  <h3 style="font:650 0.95rem ui-sans-serif,system-ui;margin:1rem 0 .35rem">Papers that still resolve</h3>
+  <ul>
+    <li><a href="https://www.nature.com/articles/s41586-020-2448-9" target="_blank" rel="noopener">Beerling et al. 2020 Nature — ERW on cropland</a> (paywall possible; abstract is public)</li>
+  </ul>
+
+  <h3 style="font:650 0.95rem ui-sans-serif,system-ui;margin:1rem 0 .35rem">Buyers &amp; funders</h3>
+  <ul>
+    <li><a href="https://frontierclimate.com/" target="_blank" rel="noopener">Frontier</a></li>
+    <li><a href="https://www.renaissancephilanthropy.org/" target="_blank" rel="noopener">Renaissance Philanthropy</a></li>
+  </ul>
+
+  <h3 style="font:650 0.95rem ui-sans-serif,system-ui;margin:1rem 0 .35rem">Companies (live homepages)</h3>
+  <ul>
+    <li><a href="https://www.planetarytech.com/" target="_blank" rel="noopener">Planetary</a></li>
+    <li><a href="https://www.ebbcarbon.com/" target="_blank" rel="noopener">Ebb Carbon</a></li>
+    <li><a href="https://www.lithoscarbon.com/" target="_blank" rel="noopener">Lithos</a></li>
+    <li><a href="https://mati.earth/" target="_blank" rel="noopener">Mati Carbon</a></li>
+    <li><a href="https://terradot.earth/" target="_blank" rel="noopener">Terradot</a></li>
+    <li><a href="https://www.vesta.earth/" target="_blank" rel="noopener">Vesta</a></li>
+    <li><a href="https://www.gigablue.co/" target="_blank" rel="noopener">GigaBlue</a></li>
+    <li><a href="https://www.bloomineral.com/" target="_blank" rel="noopener">Bloomineral</a></li>
+    <li><a href="https://www.crewcarbon.com/" target="_blank" rel="noopener">Crew Carbon</a></li>
+  </ul>
+
+  <h3 style="font:650 0.95rem ui-sans-serif,system-ui;margin:1rem 0 .35rem">Videos that exist (oEmbed-confirmed titles)</h3>
+  <ul>
+    <li><a href="https://www.youtube.com/watch?v=Rdgyr7M7-jo" target="_blank" rel="noopener">mCDR Explained — Capitol Hill Ocean Week</a> · Carbon to Sea</li>
+    <li><a href="https://www.youtube.com/watch?v=3EUyV_lcTkQ" target="_blank" rel="noopener">About Carbon to Sea</a></li>
+    <li><a href="https://www.youtube.com/watch?v=Cuf4CJ5igEo" target="_blank" rel="noopener">OAE Field Research — Irene Polnyi</a> · Carbon to Sea</li>
+    <li><a href="https://www.youtube.com/watch?v=04ldYFPdo_I" target="_blank" rel="noopener">Planetary’s Nova Scotia OAE project — Will Burt</a> · Carbon to Sea</li>
+    <li><a href="https://www.youtube.com/watch?v=roy3o7zEJpA" target="_blank" rel="noopener">Planetary Technologies: intro explainer</a></li>
+    <li><a href="https://www.youtube.com/watch?v=8cW4UDJQiSs" target="_blank" rel="noopener">Where does all the carbon go?</a> · WHOI</li>
+    <li><a href="https://www.youtube.com/watch?v=Y0SY21uFlpI" target="_blank" rel="noopener">The ocean’s carbon pump works better than we thought</a> · WHOI</li>
+    <li><a href="https://www.youtube.com/watch?v=eyYnYcjbHto" target="_blank" rel="noopener">Gigablue</a> · Katapult Ocean — useful as <em>their</em> story, not as proof</li>
+  </ul>
+</section>
+
+<footer>
+  Built as a Center of Excellence reconnaissance of marine CDR — chemistry first, then ecosystem.
+  <p>Made using Patrick's <a href="https://coer-nucleus-mcp.patrickastarita.workers.dev/template" target="_blank" rel="noopener">CoER ontology template</a>.</p>
+</footer>
+</main>
+</body>
+</html>
