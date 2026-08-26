@@ -1,0 +1,2145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Ocean's Ledger</title>
+<style>
+:root{
+  --bg:#060d18; --bg2:#0a1728; --panel:#0e1e33; --panel2:#12263f;
+  --line:#1d3a5c;
+  --ink:#e9f2fb; --muted:#93abc4; --dim:#63809c;
+  --teal:#35d0c0; --coral:#ff7a5c; --amber:#ffc94d; --violet:#a98cff;
+  --green:#5fe08a; --blue:#6aa8ff; --pink:#ff8fb8;
+  --up:#ff7a5c;   /* pCO2 goes up = bad */
+  --down:#5fe08a; /* pCO2 goes down = good */
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:
+    radial-gradient(1200px 700px at 15% -10%, #12314f 0%, transparent 60%),
+    radial-gradient(900px 600px at 95% 5%, #0f2a44 0%, transparent 55%),
+    linear-gradient(180deg,#060d18 0%,#08131f 45%,#050a12 100%);
+  background-attachment:fixed;
+  color:var(--ink); font-family:var(--sans); line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px 120px}
+
+/* ─── header ─── */
+header.hero{padding:64px 0 30px;position:relative}
+.kicker{font:600 11px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--teal);margin-bottom:20px}
+h1{font-size:clamp(34px,6vw,62px);line-height:1.02;margin:0 0 18px;letter-spacing:-.028em;font-weight:700}
+h1 .accent{background:linear-gradient(100deg,var(--teal),var(--blue) 55%,var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.standfirst{font-size:clamp(17px,2.1vw,21px);color:var(--muted);max-width:64ch;margin:0 0 30px}
+.thesis{
+  border-left:3px solid var(--teal); background:linear-gradient(90deg,rgba(53,208,192,.10),transparent 70%);
+  padding:20px 24px; border-radius:0 12px 12px 0; margin:34px 0 0; font-size:17px;
+}
+.thesis b{color:var(--teal)}
+
+/* ─── nav ─── */
+nav.chips{
+  position:sticky; top:0; z-index:40; margin:36px -22px 0; padding:12px 22px;
+  background:rgba(6,13,24,.86); backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line); overflow-x:auto; white-space:nowrap;
+  scrollbar-width:thin;
+}
+nav.chips a{
+  display:inline-block; font:600 12px/1 var(--sans); letter-spacing:.01em;
+  color:var(--muted); text-decoration:none; padding:8px 13px; border-radius:999px;
+  border:1px solid var(--line); margin-right:7px; transition:.18s;
+}
+nav.chips a:hover{color:var(--ink);border-color:var(--teal);background:rgba(53,208,192,.10)}
+
+/* ─── sections ─── */
+section{padding:64px 0 8px;scroll-margin-top:64px}
+.snum{font:700 11px/1 var(--mono);letter-spacing:.2em;color:var(--dim);margin-bottom:12px}
+h2{font-size:clamp(25px,3.6vw,36px);line-height:1.12;margin:0 0 12px;letter-spacing:-.022em;font-weight:700}
+h3{font-size:19px;margin:38px 0 12px;letter-spacing:-.012em;color:var(--ink);font-weight:650}
+.lede{font-size:17.5px;color:var(--muted);max-width:66ch;margin:0 0 26px}
+p{max-width:70ch;color:#c3d4e6;margin:0 0 17px}
+p strong,li strong{color:var(--ink);font-weight:650}
+a.ref{color:var(--blue);text-decoration:none;border-bottom:1px solid rgba(106,168,255,.35)}
+a.ref:hover{border-bottom-color:var(--blue)}
+code{font-family:var(--mono);font-size:.9em;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:5px;color:var(--amber)}
+
+/* ─── panels ─── */
+.panel{
+  background:linear-gradient(160deg,var(--panel),var(--bg2));
+  border:1px solid var(--line); border-radius:16px; padding:26px; margin:26px 0;
+  box-shadow:0 18px 44px -28px rgba(0,0,0,.9);
+}
+.panel.tight{padding:18px}
+.panel-t{font:700 11px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:16px}
+
+/* ─── figure scroller ─── */
+.figscroll{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding-bottom:6px}
+.figscroll svg{display:block}
+figcaption{font-size:13.5px;color:var(--dim);margin-top:14px;max-width:76ch;line-height:1.55}
+figure{margin:0}
+
+/* ─── grid ─── */
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(268px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(158px,1fr))}
+
+/* ─── anion cards ─── */
+.ion{
+  background:linear-gradient(165deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:14px;padding:16px 14px 14px;text-align:center;
+  transition:.2s; position:relative; overflow:hidden;
+}
+.ion:hover{transform:translateY(-3px);border-color:rgba(53,208,192,.5);box-shadow:0 14px 30px -18px rgba(53,208,192,.55)}
+.ion .molbox{height:96px;display:flex;align-items:center;justify-content:center}
+.ion .iname{font:650 13.5px/1.3 var(--sans);margin-top:9px;color:var(--ink)}
+.ion .iform{font:600 12px/1 var(--mono);color:var(--teal);margin-top:5px}
+.ion .irole{font-size:11.5px;color:var(--dim);margin-top:8px;line-height:1.45}
+.ion .talab{
+  position:absolute;top:9px;right:9px;font:700 9.5px/1 var(--mono);letter-spacing:.06em;
+  padding:4px 6px;border-radius:5px;
+}
+.ta-yes{background:rgba(95,224,138,.16);color:var(--green);border:1px solid rgba(95,224,138,.35)}
+.ta-no{background:rgba(255,122,92,.14);color:var(--coral);border:1px solid rgba(255,122,92,.3)}
+.ta-min{background:rgba(255,201,77,.14);color:var(--amber);border:1px solid rgba(255,201,77,.3)}
+
+/* ─── ledger badges ─── */
+.deltas{display:flex;flex-wrap:wrap;gap:9px;margin:18px 0 4px}
+.delta{
+  font:700 12.5px/1 var(--mono);padding:9px 13px;border-radius:9px;
+  border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);
+  display:flex;align-items:center;gap:7px;
+}
+.delta b{font-weight:800}
+.d-up{border-color:rgba(255,122,92,.45);background:rgba(255,122,92,.10);color:var(--coral)}
+.d-down{border-color:rgba(95,224,138,.45);background:rgba(95,224,138,.10);color:var(--green)}
+.d-flat{border-color:rgba(147,171,196,.35);background:rgba(147,171,196,.07);color:var(--muted)}
+
+/* ─── verdict strip ─── */
+.verdict{display:flex;align-items:center;gap:13px;padding:15px 18px;border-radius:12px;margin:20px 0;font-size:15px}
+.v-bad{background:rgba(255,122,92,.09);border:1px solid rgba(255,122,92,.3)}
+.v-good{background:rgba(95,224,138,.09);border:1px solid rgba(95,224,138,.3)}
+.v-mixed{background:rgba(255,201,77,.09);border:1px solid rgba(255,201,77,.3)}
+.verdict .vico{font-size:22px;line-height:1;flex:0 0 auto}
+.verdict b{color:var(--ink)}
+
+/* ─── stat tiles ─── */
+.stat{background:rgba(255,255,255,.028);border:1px solid var(--line);border-radius:12px;padding:15px 16px}
+.stat .sv{font:700 26px/1.05 var(--sans);letter-spacing:-.02em;color:var(--teal);margin-bottom:6px}
+.stat .sl{font-size:12.5px;color:var(--muted);line-height:1.4}
+.stat .sn{font-size:11px;color:var(--dim);margin-top:7px;line-height:1.45}
+
+/* ─── table ─── */
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;margin:24px 0}
+table{border-collapse:collapse;width:100%;min-width:900px;font-size:13.5px}
+th,td{text-align:left;padding:13px 15px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:700 10.5px/1.3 var(--mono);letter-spacing:.13em;text-transform:uppercase;color:var(--dim);background:rgba(255,255,255,.025);position:sticky;top:0}
+td{color:#c3d4e6}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(255,255,255,.022)}
+td .m{font-family:var(--mono);font-size:12px;color:var(--amber)}
+
+/* ─── quote ─── */
+blockquote{
+  margin:22px 0;padding:18px 22px;border-left:3px solid var(--violet);
+  background:rgba(169,140,255,.07);border-radius:0 12px 12px 0;color:#d2dfee;font-size:15.5px;
+}
+blockquote cite{display:block;margin-top:11px;font-size:12.5px;color:var(--dim);font-style:normal}
+
+/* ─── lists ─── */
+ul.clean{list-style:none;padding:0;margin:16px 0}
+ul.clean li{position:relative;padding-left:24px;margin-bottom:12px;color:#c3d4e6;max-width:70ch}
+ul.clean li::before{content:"";position:absolute;left:6px;top:10px;width:6px;height:6px;border-radius:50%;background:var(--teal)}
+ul.clean.warn li::before{background:var(--coral)}
+ul.clean.q li::before{background:var(--amber)}
+
+/* ─── player controls ─── */
+.player{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px}
+button.pbtn{
+  font:650 13px/1 var(--sans);color:#04121c;background:linear-gradient(120deg,var(--teal),#4fe0b8);
+  border:none;border-radius:9px;padding:11px 20px;cursor:pointer;transition:.16s;
+}
+button.pbtn:hover{filter:brightness(1.12);transform:translateY(-1px)}
+button.pbtn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+button.pbtn.ghost:hover{color:var(--ink);border-color:var(--teal)}
+.steplab{font-size:13.5px;color:var(--muted);flex:1;min-width:200px}
+.steplab b{color:var(--teal)}
+.dots{display:flex;gap:6px}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--line);display:block;transition:.2s}
+.dots i.on{background:var(--teal);transform:scale(1.35)}
+
+/* ─── misc ─── */
+.hr{height:1px;background:linear-gradient(90deg,transparent,var(--line) 20%,var(--line) 80%,transparent);margin:56px 0 0}
+.tag{display:inline-block;font:700 10px/1 var(--mono);letter-spacing:.13em;text-transform:uppercase;padding:5px 9px;border-radius:5px;margin:0 6px 6px 0}
+.t-teal{background:rgba(53,208,192,.14);color:var(--teal)}
+.t-coral{background:rgba(255,122,92,.14);color:var(--coral)}
+.t-amber{background:rgba(255,201,77,.14);color:var(--amber)}
+.t-violet{background:rgba(169,140,255,.14);color:var(--violet)}
+footer{margin-top:70px;padding-top:30px;border-top:1px solid var(--line);color:var(--dim);font-size:13px}
+footer a{color:var(--blue);text-decoration:none}
+.srclist{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-top:14px}
+.srclist a{display:block;padding:10px 13px;background:rgba(255,255,255,.028);border:1px solid var(--line);border-radius:9px;font-size:12.5px;color:#b9cbdd;text-decoration:none;transition:.16s}
+.srclist a:hover{border-color:var(--blue);color:var(--ink)}
+@media (max-width:600px){ .wrap{padding:0 15px 80px} header.hero{padding:40px 0 20px} .panel{padding:18px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="kicker">Ocean carbon removal · the chemistry, drawn</div>
+  <h1>The ocean keeps a <span class="accent">two-column ledger</span>. Every carbon scheme is a bet on one number.</h1>
+  <p class="standfirst">
+    Alkalinity in one column, dissolved carbon in the other. Their <em>ratio</em> decides whether the sea
+    inhales CO&#8322; or exhales it. Growing plankton, dissolving rock, building calcite shells — each one
+    is just a different way of nudging that ratio. Here is what actually happens, bond by bond.
+  </p>
+  <div class="thesis">
+    <b>The one thing to carry:</b> carbon <em>fixed</em> is not carbon <em>removed</em>. A coccolithophore
+    building a beautiful calcite shell is <em>emitting</em> CO&#8322; to build it. Weathered rock is the
+    only route here that adds alkalinity outright — and alkalinity is the column that does the pulling.
+  </div>
+</header>
+
+<section style="max-width:1080px;margin:0 auto;padding:0 22px 20px">
+  <h2 style="color:#6aa8ff;font-family:system-ui">Meet the cell — two ledgers at once</h2>
+  <p style="color:#93abc4">A coccolithophore (celebrity species <em>Emiliania huxleyi</em>, “Ehux”) is one cell. Light: photosynthesis = sink into soft tissue (POC). Same hour: calcite plates (coccoliths, PIC) = source at the surface. Climate net is the difference.</p>
+  <svg viewBox="0 0 980 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+    <rect width="980" height="280" rx="16" fill="#0e1e33"/>
+    <text x="30" y="32" fill="#93abc4" font-size="13">seawater around the cell · DIC mostly HCO₃⁻</text>
+    <text x="30" y="90" fill="#5fe08a" font-size="14">SUNLIGHT + CO₂</text>
+    <text x="30" y="110" fill="#93abc4" font-size="12">air → water → cell</text>
+    <text x="30" y="150" fill="#5fe08a" font-size="13">photosynthesis</text>
+    <text x="30" y="168" fill="#93abc4" font-size="12">soft carbon (POC)</text>
+    <line x1="200" y1="120" x2="340" y2="140" stroke="#5fe08a" stroke-width="3" marker-end="url(#a)"/>
+    <circle cx="490" cy="145" r="78" fill="#12263f" stroke="#6aa8ff" stroke-width="3"/>
+    <ellipse cx="430" cy="100" rx="18" ry="10" fill="#d8c4a0"/>
+    <ellipse cx="470" cy="78" rx="18" ry="10" fill="#d8c4a0"/>
+    <ellipse cx="520" cy="82" rx="18" ry="10" fill="#d8c4a0"/>
+    <ellipse cx="555" cy="115" rx="18" ry="10" fill="#d8c4a0"/>
+    <ellipse cx="550" cy="165" rx="18" ry="10" fill="#d8c4a0"/>
+    <ellipse cx="510" cy="200" rx="18" ry="10" fill="#d8c4a0"/>
+    <ellipse cx="455" cy="195" rx="18" ry="10" fill="#d8c4a0"/>
+    <ellipse cx="420" cy="155" rx="18" ry="10" fill="#d8c4a0"/>
+    <text x="490" y="140" text-anchor="middle" fill="#e9f2fb" font-size="13">cell interior</text>
+    <text x="490" y="158" text-anchor="middle" fill="#93abc4" font-size="11">chloroplast +</text>
+    <text x="490" y="174" text-anchor="middle" fill="#93abc4" font-size="11">calcification vesicle</text>
+    <text x="760" y="90" fill="#ffc94d" font-size="14">coccoliths = calcite plates</text>
+    <text x="760" y="110" fill="#93abc4" font-size="12">CaCO₃  chalk / limestone mineral</text>
+    <text x="760" y="150" fill="#ff7a5c" font-size="13">calcification · hard carbon (PIC)</text>
+    <text x="760" y="170" fill="#ff7a5c" font-size="12">CO₂ leaked back to water, often to air</text>
+    <line x1="580" y1="140" x2="740" y2="140" stroke="#ff7a5c" stroke-width="3"/>
+    <text x="30" y="250" fill="#5fe08a" font-size="12">● sink — photosynthesis</text>
+    <text x="250" y="250" fill="#ff7a5c" font-size="12">● source — shell-making</text>
+    <text x="500" y="250" fill="#d8c4a0" font-size="12">● calcite plates</text>
+  </svg>
+</section>
+
+
+<nav class="chips">
+  <a href="#ledger">1 · The ledger</a>
+  <a href="#anions">2 · The cast</a>
+  <a href="#ladder">3 · The ladder</a>
+  <a href="#plane">4 · The master map</a>
+  <a href="#calcite">5 · The calcite paradox</a>
+  <a href="#weathering">6 · Weathering &amp; OAE</a>
+  <a href="#pump">7 · The biological pump</a>
+  <a href="#rainratio">8 · Rain ratio</a>
+  <a href="#compare">9 · Side by side</a>
+  <a href="#mrv">10 · The hard part</a>
+  <a href="#gigablue">11 · Gigablue</a>
+  <a href="#watch">Watch</a>
+  <a href="#glossary">Glossary</a>
+</nav>
+
+<!-- ══════════════ 1 · THE LEDGER ══════════════ -->
+<section id="ledger">
+  <div class="snum">01 / THE ONE IDEA</div>
+  <h2>Two columns, and only their ratio matters</h2>
+  <p class="lede">Seawater holds carbon in three chemical costumes at once. Which costume dominates —
+  and therefore whether CO&#8322; wants to leave the water or enter it — is set by a tug-of-war between
+  two bookkeeping totals.</p>
+
+  <div class="grid g2">
+    <div class="panel tight">
+      <div class="panel-t">Column 1 · DIC</div>
+      <p style="font-size:15px;margin-bottom:8px"><strong>Dissolved Inorganic Carbon.</strong> Every carbon atom
+      in the water, counted once, no matter its costume:</p>
+      <div style="font-family:var(--mono);font-size:13px;color:var(--amber);margin-bottom:10px">
+        DIC = [CO&#8322;*] + [HCO&#8323;<sup>&minus;</sup>] + [CO&#8323;<sup>2&minus;</sup>]
+      </div>
+      <p style="font-size:14px;color:var(--dim);margin:0">Push DIC up and the water becomes more likely to
+      <em style="color:var(--coral)">exhale</em> CO&#8322;.</p>
+    </div>
+    <div class="panel tight">
+      <div class="panel-t">Column 2 · Total Alkalinity</div>
+      <p style="font-size:15px;margin-bottom:8px"><strong>Not "how basic the water is."</strong> It is a
+      <em>charge</em> count — the excess of proton-<em>acceptors</em> over proton-<em>donors</em>:</p>
+      <div style="font-family:var(--mono);font-size:13px;color:var(--amber);margin-bottom:10px">
+        TA &asymp; [HCO&#8323;<sup>&minus;</sup>] + 2[CO&#8323;<sup>2&minus;</sup>] + [B(OH)&#8324;<sup>&minus;</sup>] + [OH<sup>&minus;</sup>] &minus; [H<sup>+</sup>] + &hellip;
+      </div>
+      <p style="font-size:14px;color:var(--dim);margin:0">Push TA up and the water
+      <em style="color:var(--green)">inhales</em> CO&#8322;.</p>
+    </div>
+  </div>
+
+  <figure class="panel">
+    <div class="panel-t">The balance beam</div>
+    <div class="figscroll"><div id="fig-beam"></div></div>
+    <figcaption>Alkalinity is a supply of negative charge that <em>has</em> to be balanced. When you add it,
+    the water can only stay electrically neutral by converting bicarbonate into carbonate — which drops the
+    free CO&#8322; concentration, which makes the sea suck CO&#8322; down out of the air. Every drawdown scheme
+    on this page is, underneath, a way of tipping this beam to the left.</figcaption>
+  </figure>
+
+  <div class="grid g3" style="margin-top:22px">
+    <div class="stat">
+      <div class="sv">~90%</div>
+      <div class="sl">of surface-ocean DIC is bicarbonate, HCO&#8323;<sup>&minus;</sup></div>
+      <div class="sn">Roughly 9% carbonate, and well under 1% actual dissolved CO&#8322;. The ocean is
+      essentially a bicarbonate solution.</div>
+    </div>
+    <div class="stat">
+      <div class="sv">~10&times;</div>
+      <div class="sl">the Revelle buffer penalty</div>
+      <div class="sn">Add 1% to DIC and surface pCO&#8322; rises ~10%. The ocean resists being loaded — and
+      that same stiffness is why alkalinity is such a powerful lever.</div>
+    </div>
+    <div class="stat">
+      <div class="sv">~42&times;</div>
+      <div class="sl">more carbon in the ocean than the atmosphere</div>
+      <div class="sn">37,200 &plusmn; 200 Gt C dissolved versus ~891 Gt C in the air. The ratio was ~62 before
+      industrialisation &mdash; the air's share has been growing.</div>
+    </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<!-- ══════════════ 2 · THE CAST ══════════════ -->
+<section id="anions">
+  <div class="snum">02 / THE CAST</div>
+  <h2>The anions, and which ones the ledger counts</h2>
+  <p class="lede">You asked how CO&#8322; sequestration changes depending on which seawater anion is involved.
+  It comes down to this: <strong>an anion contributes to alkalinity in proportion to how many protons it can
+  soak up.</strong> A doubly-charged carbonate ion is worth twice a bicarbonate. Sulfate and chloride, which
+  never grab a proton at seawater pH, are worth nothing at all.</p>
+
+  <div class="grid g4" style="margin-top:26px">
+    <div class="ion"><span class="talab ta-no">TA +0</span><div class="molbox" data-mol="co2"></div>
+      <div class="iname">Carbon dioxide</div><div class="iform">CO&#8322;(aq)</div>
+      <div class="irole">Neutral. Carries no charge, so contributes nothing to alkalinity — but it <em>is</em>
+      the species that exchanges with the air.</div></div>
+
+    <div class="ion"><span class="talab ta-yes">TA +1</span><div class="molbox" data-mol="hco3"></div>
+      <div class="iname">Bicarbonate</div><div class="iform">HCO&#8323;<sup>&minus;</sup></div>
+      <div class="irole">The workhorse. ~90% of ocean carbon. One negative charge, accepts one proton.</div></div>
+
+    <div class="ion"><span class="talab ta-yes">TA +2</span><div class="molbox" data-mol="co3"></div>
+      <div class="iname">Carbonate</div><div class="iform">CO&#8323;<sup>2&minus;</sup></div>
+      <div class="irole">Doubly charged — worth <em>two</em> units of alkalinity. Raising this is what
+      pulls CO&#8322; from the air.</div></div>
+
+    <div class="ion"><span class="talab ta-yes">TA +1</span><div class="molbox" data-mol="oh"></div>
+      <div class="iname">Hydroxide</div><div class="iform">OH<sup>&minus;</sup></div>
+      <div class="irole">Direct alkalinity. This is what dissolving lime or running an electrochemical
+      cell actually delivers.</div></div>
+
+    <div class="ion"><span class="talab ta-yes">TA +1</span><div class="molbox" data-mol="borate"></div>
+      <div class="iname">Borate</div><div class="iform">B(OH)&#8324;<sup>&minus;</sup></div>
+      <div class="irole">The quiet second-place contributor — a few percent of TA, and the reason precise
+      alkalinity accounting is fiddly.</div></div>
+
+    <div class="ion"><span class="talab ta-min">TA +1*</span><div class="molbox" data-mol="no3"></div>
+      <div class="iname">Nitrate</div><div class="iform">NO&#8323;<sup>&minus;</sup></div>
+      <div class="irole">*Not itself alkalinity — but when plankton <em>consume</em> it, they leave a
+      negative charge behind and TA rises by 1 per nitrate taken up.</div></div>
+
+    <div class="ion"><span class="talab ta-no">TA +0</span><div class="molbox" data-mol="so4"></div>
+      <div class="iname">Sulfate</div><div class="iform">SO&#8324;<sup>2&minus;</sup></div>
+      <div class="irole">Abundant, doubly charged — and irrelevant. Its conjugate acid is so strong it
+      never takes a proton at pH 8. Charge without alkalinity.</div></div>
+
+    <div class="ion"><span class="talab ta-no">TA +0</span><div class="molbox" data-mol="cl"></div>
+      <div class="iname">Chloride</div><div class="iform">Cl<sup>&minus;</sup></div>
+      <div class="irole">The most abundant anion in the sea by far, and a complete spectator. Proof that
+      "negative" and "alkaline" are different things.</div></div>
+  </div>
+
+  <div class="verdict v-mixed">
+    <span class="vico">&#9888;</span>
+    <div>The lesson hidden in this grid: <b>an ion's charge is not its carbon value.</b> Sulfate has two
+    negative charges and does nothing. Carbonate has two and does everything. What separates them is
+    <b>proton affinity</b> — the willingness to accept an H&#8314; and thereby mop up acidity.</div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<!-- ══════════════ 3 · THE LADDER ══════════════ -->
+<section id="ladder">
+  <div class="snum">03 / THE LADDER</div>
+  <h2>One carbon atom, three costumes — climbing by shedding protons</h2>
+  <p class="lede">Dissolved CO&#8322; is not stable in seawater. It hydrates, then sheds protons one at a
+  time, climbing a two-rung ladder. Where the population sits on that ladder is set entirely by pH —
+  and pH is set by alkalinity.</p>
+
+  <figure class="panel">
+    <div class="panel-t">The Bjerrum ladder · bond by bond</div>
+    <div class="figscroll"><div id="fig-ladder"></div></div>
+    <figcaption>Each step to the right removes an H&#8314; and adds a negative charge. Watch the bonds:
+    CO&#8322; is a rigid linear molecule with two double bonds. Hydration bends it into carbonic acid — a
+    tetrahedral carbon centre with two hydroxyl arms. Stripping the first proton gives bicarbonate, where the
+    remaining negative charge is <em>delocalised</em> across two oxygens (the dashed bonds). Stripping the second
+    gives the flat, symmetric, doubly-charged carbonate ion — the shape that fits into a calcite crystal.</figcaption>
+  </figure>
+
+  <figure class="panel">
+    <div class="panel-t">Where the ocean actually sits</div>
+    <div class="figscroll"><div id="fig-bjerrum"></div></div>
+    <figcaption>The Bjerrum plot. Modern surface seawater sits at pH ≈ 8.1 — the vertical line — deep in
+    bicarbonate territory. Note how close the line has drifted toward the left since 1750 (pH ≈ 8.2):
+    that leftward drift <em>is</em> ocean acidification, and it means less carbonate, which is precisely why
+    shell-builders are under stress and why the ocean's ability to absorb more CO&#8322; is weakening.</figcaption>
+  </figure>
+</section>
+<div class="hr"></div>
+
+<!-- ══════════════ 4 · THE MASTER MAP ══════════════ -->
+<section id="plane">
+  <div class="snum">04 / THE MASTER MAP</div>
+  <h2>Every carbon scheme, on one diagram</h2>
+  <p class="lede">Here is the payoff. Plot any chemical process by what it does to the two columns —
+  how much it changes DIC (across) and how much it changes alkalinity (up). A single diagonal line
+  splits the whole plane into <em>the ocean inhales</em> and <em>the ocean exhales</em>. Nothing else
+  is needed.</p>
+
+  <figure class="panel">
+    <div class="panel-t">The &Delta;TA / &Delta;DIC plane</div>
+    <div class="figscroll"><div id="fig-plane"></div></div>
+    <figcaption><strong>The rule:</strong> if a process raises alkalinity faster than it raises dissolved
+    carbon (&Delta;TA &gt; &Delta;DIC), it lands above the diagonal and seawater pCO&#8322; <em>falls</em> —
+    the sea pulls CO&#8322; down out of the air. If it lands below, pCO&#8322; rises and the sea gives CO&#8322;
+    back. Note where <span style="color:var(--coral)">calcification</span> sits: firmly in the exhale half.
+    Note that <span style="color:var(--amber)">silicate weathering products</span> land exactly <em>on</em> the
+    line — the ocean neither gains nor loses, because the CO&#8322; was already captured on land, and the
+    ocean's job is only to hold it. And note that pure <span style="color:var(--green)">alkalinity
+    addition</span> travels straight up: the single most efficient direction on this map.</figcaption>
+  </figure>
+
+  <div class="verdict v-good">
+    <span class="vico">&#9679;</span>
+    <div>Read the map once and the rest of this page is commentary. <b>Alkalinity is the vertical axis, and
+    up is the direction of drawdown.</b> Ocean alkalinity enhancement points straight up. Enhanced weathering
+    travels up the diagonal. Growing plankton moves sharply left. Building a shell moves down. That is the
+    whole field.</div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<!-- ══════════════ 5 · CALCITE PARADOX ══════════════ -->
+<section id="calcite">
+  <div class="snum">05 / THE PARADOX</div>
+  <h2>Coccolithophores: the shell is made <em>of</em> carbon and made <em>by</em> emitting carbon</h2>
+  <p class="lede">Coccolithophores are single-celled algae roughly five micrometres across that armour
+  themselves in intricate plates of calcite. Blooms of the best-known species &mdash;
+  <em>Gephyrocapsa huxleyi</em>, long called <em>Emiliania huxleyi</em> &mdash; can cover more than 100,000
+  km&sup2; and turn the sea milky turquoise, plainly visible from orbit. Their fossil plates built the White
+  Cliffs of Dover. And the act of building those plates <strong>releases CO&#8322; into the water</strong>.</p>
+
+  <figure class="panel">
+    <div class="panel-t">Watch the atoms · calcification, step by step</div>
+    <div class="figscroll"><div id="fig-calc"></div></div>
+    <div class="player">
+      <button class="pbtn" id="calc-play">&#9654;&nbsp; Play the reaction</button>
+      <button class="pbtn ghost" id="calc-step">Step &rsaquo;</button>
+      <div class="dots" id="calc-dots"></div>
+      <div class="steplab" id="calc-lab">Two bicarbonate ions and a calcium ion drift together.</div>
+    </div>
+    <figcaption>Count the carbons. <strong>Two</strong> go in, riding on two bicarbonate ions.
+    <strong>One</strong> ends up locked in the solid calcite plate. <strong>One walks out as CO&#8322;.</strong>
+    The cell has not removed carbon from the water — it has taken two dissolved carbons and converted one of
+    them into a gas that will equilibrate with the atmosphere.</figcaption>
+  </figure>
+
+  <div class="deltas">
+    <div class="delta d-down"><b>&Delta;DIC</b> &minus;1 per CaCO&#8323;</div>
+    <div class="delta d-down"><b>&Delta;TA</b> &minus;2 per CaCO&#8323;</div>
+    <div class="delta d-up"><b>&Delta;TA / &Delta;DIC = 2</b> &nbsp;&rarr;&nbsp; below the line</div>
+    <div class="delta d-up"><b>Result</b> pCO&#8322; RISES &#8593;</div>
+  </div>
+
+  <p>Alkalinity falls <em>twice as fast</em> as dissolved carbon. That is the entire mechanism. The carbonate
+  ion the cell consumes was worth two units of alkalinity; the carbon atom it consumes is worth one unit of
+  DIC. Take away twice as much of the pulling column as the pushing column, and the water's grip on CO&#8322;
+  loosens.</p>
+
+  <p>One honest refinement before we go further: <strong>not all of that CO&#8322; escapes.</strong> Seawater
+  buffering reabsorbs part of it, so the real figure is about <strong>0.6 moles of CO&#8322; released per mole
+  of CaCO&#8323; formed</strong>, not 1.0. That number has a name &mdash; &psi; &mdash; and it turns out to be
+  the hinge on which the whole coccolithophore question swings. We come back to it in section 8. It also gets
+  <em>worse</em> as the ocean acidifies: &psi; climbs toward 1.0 as CO&#8322; rises and water cools.</p>
+
+  <h3>So why is chalk made of dead plankton if they emit carbon?</h3>
+  <p>Because of a <strong>timescale switch</strong>, and it is the single most-confused point in this whole
+  subject.</p>
+  <ul class="clean">
+    <li><strong>Over decades to centuries</strong> — the timescale a carbon credit is sold on — calcification
+    is a CO&#8322; <em>source</em>. The released CO&#8322; is in surface water, in contact with the air, within
+    months.</li>
+    <li><strong>Over tens of thousands to millions of years</strong> — the timescale of the White Cliffs of
+    Dover — calcite that reaches the seafloor and is buried removes calcium and carbonate from the ocean
+    permanently, and the geological weathering cycle rebalances the books. On <em>that</em> clock, carbonate
+    burial is a genuine long-term sink.</li>
+  </ul>
+  <p>Both statements are true. They are answers to different questions. A company selling carbon removal is
+  answering the first question, not the second.</p>
+
+  <h3>The counter-argument: calcite as ballast</h3>
+  <p>There is a real effect pulling the other way, and honest accounting has to include it. Calcite is dense —
+  about 2.7 times the density of seawater. A sinking aggregate of soft organic tissue is barely denser than
+  the water around it and drifts down slowly, giving bacteria weeks to eat it and return its carbon to the
+  dissolved pool. Stud that aggregate with mineral plates and it drops like a stone, outrunning the bacteria
+  and delivering more of its organic carbon to depth. This is the <strong>ballast hypothesis</strong>, and it
+  is why the relationship between calcifiers and the carbon cycle is genuinely contested rather than simply
+  negative.</p>
+
+  <figure class="panel">
+    <div class="panel-t">Two pumps, opposite signs</div>
+    <div class="figscroll"><div id="fig-pumps"></div></div>
+    <figcaption>The <span style="color:var(--green)">soft-tissue pump</span> moves carbon down and pCO&#8322;
+    down. The <span style="color:var(--coral)">carbonate counter-pump</span> moves carbon down <em>and
+    pCO&#8322; up</em>. They run through the same organisms, in the same water, at the same time. Which one
+    wins is a question about a ratio — and that ratio is the subject of section 8.</figcaption>
+  </figure>
+</section>
+
+<div class="hr"></div>
+
+<!-- ══════════════ 6 · WEATHERING ══════════════ -->
+<section id="weathering">
+  <div class="snum">06 / THE ROCK ROUTE</div>
+  <h2>Weathering: the planet's own thermostat, run fast</h2>
+  <p class="lede">Over geological time, rain that has absorbed CO&#8322; dissolves silicate rock, and the
+  resulting alkalinity washes to the sea where it holds carbon as bicarbonate. This is the slow feedback that
+  has kept Earth habitable for billions of years. Enhanced weathering is the proposal to run it on a human
+  schedule by grinding the rock up first.</p>
+
+  <h3>Route A · Silicate weathering — the four-for-one deal</h3>
+  <figure class="panel">
+    <div class="panel-t">Olivine dissolution · Mg&#8322;SiO&#8324;</div>
+    <div class="figscroll"><div id="fig-olivine"></div></div>
+    <figcaption>Forsterite olivine is the poster mineral because its stoichiometry is unusually generous:
+    one formula unit consumes <strong>four</strong> molecules of CO&#8322;, converting each into a bicarbonate
+    ion that the ocean will hold for on the order of 100,000 years. The magnesium goes into solution as a
+    spectator cation whose positive charge is exactly what permits four extra negative bicarbonates to exist.</figcaption>
+  </figure>
+
+  <div class="deltas">
+    <div class="delta d-down"><b>4 CO&#8322;</b> consumed per Mg&#8322;SiO&#8324;</div>
+    <div class="delta d-flat"><b>&Delta;TA</b> +4 &nbsp;·&nbsp; <b>&Delta;DIC</b> +4</div>
+    <div class="delta d-down"><b>Theoretical max</b> ~1.25 t CO&#8322; per t olivine</div>
+    <div class="delta d-flat"><b>Durability</b> ~10&#8309; years as bicarbonate</div>
+  </div>
+
+  <h3>Route B · Carbonate weathering — calcification, run backwards</h3>
+  <figure class="panel">
+    <div class="panel-t">Limestone dissolution · CaCO&#8323;</div>
+    <div class="figscroll"><div id="fig-carbwx"></div></div>
+    <figcaption>Look closely: this is the coccolithophore reaction with the arrow reversed. Dissolving
+    limestone <em>consumes</em> a CO&#8322; and produces two bicarbonates — &Delta;TA +2, &Delta;DIC +1,
+    which lands above the diagonal. But half the carbon in the products came out of the rock, not the air,
+    so the net atmospheric benefit is only <strong>one</strong> CO&#8322; per formula unit — roughly a quarter
+    of what the same mass of olivine delivers.</figcaption>
+  </figure>
+
+  <h3>Route C · Ocean alkalinity enhancement — skip the rock, add the base</h3>
+  <p>The most direct version of all: manufacture alkalinity and put it in the sea. Slaked lime,
+  Ca(OH)&#8322;, dissolves to give a calcium ion and two hydroxides. Electrochemical approaches split seawater
+  to make a sodium hydroxide stream and a matching acid stream that is disposed of separately. Either way
+  &Delta;DIC starts at zero and &Delta;TA jumps — a vector pointing <strong>straight up</strong> on the master
+  map, the most efficient direction available.</p>
+
+  <figure class="panel">
+    <div class="panel-t">Alkalinity in, CO&#8322; follows</div>
+    <div class="figscroll"><div id="fig-oae"></div></div>
+    <figcaption>Adding hydroxide instantly converts bicarbonate into carbonate. That drops the free CO&#8322;
+    concentration in the water, which opens a gradient across the sea surface, and over the following months
+    the atmosphere refills it. <strong>The removal is not the dissolving — the removal is the slow inhale
+    that follows.</strong> This is why "equilibration efficiency" is the number that matters, and why an
+    alkalinity plume released in the wrong place, or subducted below the surface before it can breathe,
+    delivers a fraction of its paper value.</figcaption>
+  </figure>
+
+  <h3>Where it gets hard</h3>
+  <ul class="clean warn">
+    <li><strong>Grinding costs energy.</strong> Dissolution rate scales with surface area, so finer is faster
+    — but milling to fine grades can eat a meaningful fraction of the CO&#8322; you are trying to capture.
+    The energy budget has to be counted against the removal.</li>
+    <li><strong>Olivine carries passengers.</strong> Natural olivine contains nickel and chromium. Spread at
+    scale, those metals go into the coastal environment along with the alkalinity.</li>
+    <li><strong>Push too hard and it snaps back.</strong> Add alkalinity too fast or too concentrated and the
+    water becomes supersaturated enough to precipitate CaCO&#8323; spontaneously — which is calcification,
+    which runs the reaction you just paid for in reverse. This "runaway precipitation" threshold is a hard
+    engineering constraint on how any alkalinity is delivered.</li>
+    <li><strong>The inhale is invisible.</strong> Nothing is captured at the moment of release. The CO&#8322;
+    crosses the sea surface over months, spread across a moving patch of ocean. There is no meter. There is
+    only a model.</li>
+  </ul>
+</section>
+<div class="hr"></div>
+
+<!-- ══════════════ 7 · THE BIOLOGICAL PUMP ══════════════ -->
+<section id="pump">
+  <div class="snum">07 / THE LIVING ROUTE</div>
+  <h2>Growing plankton: the biggest carbon pump on Earth, and the hardest to sell</h2>
+  <p class="lede">Every year, microscopic algae in the sunlit surface ocean fix roughly as much carbon as
+  all land plants combined. A fraction of that sinks out of the surface as dead cells, faecal pellets and
+  aggregates — "marine snow". This is the biological pump, and it is why the deep ocean holds more carbon
+  than the atmosphere.</p>
+
+  <figure class="panel">
+    <div class="panel-t">Photosynthesis, in Redfield proportions</div>
+    <div class="figscroll"><div id="fig-redfield"></div></div>
+    <figcaption>The stoichiometry of plankton growth is remarkably consistent — roughly 106 carbons to 16
+    nitrogens to 1 phosphorus, the <strong>Redfield ratio</strong>. Two things happen at once here.
+    Dissolved carbon plunges: &Delta;DIC &minus;106. And alkalinity <em>rises</em> slightly, &Delta;TA +17,
+    because every nitrate ion the cell absorbs takes a negative charge out of solution with it. Both effects
+    push pCO&#8322; down — which is why this vector points so steeply into the inhale half of the master map.</figcaption>
+  </figure>
+
+  <div class="verdict v-mixed">
+    <span class="vico">&#9888;</span>
+    <div><b>The sentence that decides whether any plankton scheme is real:</b> fixing carbon at the surface
+    lowers the DIC of that surface water — but nothing has been removed from the <em>atmosphere</em> until
+    the air refills that deficit across the sea surface. That exchange takes <b>months to a year</b>. If the
+    water sinks, mixes away, or the carbon is eaten and released before the inhale completes, the paper
+    removal never happened.</div>
+  </div>
+
+  <h3>Depth is durability</h3>
+  <p>Carbon that sinks is not gone; it is only <em>away</em>, and for a length of time set almost entirely by
+  <strong>how deep it got before something ate it</strong>. Sinking flux falls off sharply with depth — the
+  Martin curve — because bacteria and zooplankton intercept most of the falling material in the first few
+  hundred metres and respire its carbon straight back into dissolved form.</p>
+
+  <figure class="panel">
+    <div class="panel-t">How long does it stay down?</div>
+    <div class="figscroll"><div id="fig-depth"></div></div>
+    <figcaption>The clock is not set by the sinking — it is set by the <em>ventilation age</em> of the water
+    the carbon lands in: how long until that parcel of water next touches the surface and can breathe. This
+    is why the depth a project can honestly claim is the single largest lever on the durability it can sell,
+    and why "below the thermocline" and "permanent" are very different statements.</figcaption>
+  </figure>
+
+  <h3>The cautionary history: iron fertilisation</h3>
+  <p>The idea of stimulating plankton to draw down carbon is not new. Thirteen major open-ocean iron
+  fertilisation experiments were run between 1993 and 2009. They reliably produced blooms. What they did
+  <em>not</em> reliably produce was measurable, durable carbon export — and the field's own verdict became
+  markedly more cautious as a result.</p>
+  <ul class="clean warn">
+    <li><strong>Export was small and wildly variable.</strong> Big blooms often produced little sinking flux;
+    most of the fixed carbon was recycled in the surface layer rather than exported.</li>
+    <li><strong>Nutrient robbing.</strong> Nutrients consumed in one patch are nutrients unavailable
+    downstream. Some of the apparent local gain is productivity stolen from elsewhere.</li>
+    <li><strong>Side effects at depth.</strong> Respiring a large pulse of organic matter consumes oxygen and
+    can generate nitrous oxide and methane — greenhouse gases far more potent than CO&#8322; per molecule.</li>
+    <li><strong>Verification proved brutally hard.</strong> Attributing a change in a moving, mixing, patchy
+    ocean to your intervention rather than to weather is the central unsolved problem, and it is unsolved for
+    every ocean-biology approach, not just iron.</li>
+  </ul>
+</section>
+
+<div class="hr"></div>
+
+<!-- ══════════════ 8 · RAIN RATIO ══════════════ -->
+<section id="rainratio">
+  <div class="snum">08 / THE DECIDING NUMBER</div>
+  <h2>The rain ratio: how much shell per unit of flesh</h2>
+  <p class="lede">Sections 5 and 7 described two pumps running in the same water with opposite signs.
+  Which one wins is settled by a single ratio: how much mineral carbon (PIC) a plankton community exports
+  per unit of organic carbon (POC). This is the <strong>rain ratio</strong>, and the threshold is not where
+  most people guess.</p>
+
+  <div class="panel">
+    <div class="panel-t">Where the number 1.65 comes from</div>
+    <p style="margin-bottom:12px">Not all the CO&#8322; released by calcification escapes &mdash; seawater's
+    buffering absorbs some of it. Frankignoulle and colleagues (1994) named that fraction
+    <strong>&psi;</strong>: the moles of CO&#8322; actually released per mole of CaCO&#8323; precipitated.</p>
+    <div class="deltas">
+      <div class="delta d-up"><b>&psi; &asymp; 0.6</b> mol CO&#8322; per mol CaCO&#8323;</div>
+      <div class="delta d-flat"><b>threshold = 1 / &psi;</b></div>
+      <div class="delta d-flat"><b>&asymp; 1.65</b> PIC : POC</div>
+    </div>
+    <p style="margin:14px 0 0;font-size:14.5px;color:#9fb6cc">One unit of organic carbon fixed removes one
+    unit of DIC. One unit of calcite formed releases only 0.6. So it takes about <strong>1.65</strong> units
+    of calcite to cancel one unit of soft tissue &mdash; not 1.0, which is the shorthand you will often see
+    and which is off by about 65%.</p>
+  </div>
+
+  <figure class="panel">
+    <div class="panel-t">One axis decides the sign</div>
+    <div class="figscroll"><div id="fig-rain"></div></div>
+    <figcaption>Measured PIC:POC across coccolithophore species spans roughly 0.17 to 2.08, and
+    <em>Gephyrocapsa huxleyi</em> &mdash; the species long known as <em>Emiliania huxleyi</em> &mdash; usually
+    sits between about 0.16 and 1.2. Which means most real coccolithophores land <strong>below</strong> the
+    threshold: taken as whole organisms, at the moment of growth, they are typically a modest net
+    CO&#8322; <em>sink</em>.</figcaption>
+  </figure>
+
+  <div class="verdict v-mixed">
+    <span class="vico">&#9888;</span>
+    <div><b>Both popular claims are wrong.</b> "Coccolithophores lock carbon away in their shells" is wrong
+    &mdash; the shell-building step is a CO&#8322; source. But "coccolithophores are CO&#8322; emitters" is an
+    over-correction &mdash; the same cell photosynthesises, and for most species the organic half wins. The
+    honest statement is narrower and more useful: <b>calcification is a carbon cost that the organism's
+    photosynthesis has to pay for, and how much is left over depends on the species, the season and the
+    strain.</b></div>
+  </div>
+
+  <p>Three further complications keep this from being a clean calculation:</p>
+  <ul class="clean q">
+    <li><strong>The threshold itself is moving.</strong> &psi; climbs toward 1.0 as water cools and as
+    CO&#8322; rises &mdash; so the tipping point <em>falls</em> as the ocean acidifies. The penalty on
+    calcification gets worse over time, not better.</li>
+    <li><strong>Ballast cuts the other way.</strong> Klaas and Archer (2002), standardising sediment-trap data
+    from 52 sites below 1,000 m, found mineral ballast explains <strong>85&ndash;90%</strong> of the variance
+    in deep organic carbon flux, with calcite the dominant carrier &mdash; about 0.072 g of organic carbon
+    delivered per gram of CaCO&#8323;. A calcifier may cost you carbon at the surface and still deliver more
+    of it to depth.</li>
+    <li><strong>Acidification is reshaping the organisms.</strong> Riebesell et al. (2000) found reduced
+    calcification under high CO&#8322;; Iglesias-Rodriguez et al. (2008) found the opposite. Meyer and
+    Riebesell's 2015 meta-analysis of 23 studies and 48 experiments came down on the side of reduced
+    calcification in the two dominant species &mdash; but with four qualitatively different response shapes
+    across 14 strains. No single sentence about "how coccolithophores respond" survives contact with the data.</li>
+  </ul>
+</section>
+
+<div class="hr"></div>
+
+<!-- ══════════════ 9 · COMPARISON ══════════════ -->
+<section id="compare">
+  <div class="snum">09 / SIDE BY SIDE</div>
+  <h2>The routes, compared honestly</h2>
+  <p class="lede">The same seven columns for every approach. The one to read first is
+  <strong>"what it does to the ledger"</strong> — it predicts the rest.</p>
+
+  <div class="tblwrap">
+    <table>
+      <thead><tr>
+        <th style="min-width:150px">Approach</th>
+        <th style="min-width:190px">Mechanism</th>
+        <th style="min-width:160px">Effect on the ledger</th>
+        <th style="min-width:135px">CO₂ accounting</th>
+        <th style="min-width:130px">Durability</th>
+        <th style="min-width:110px">Maturity</th>
+        <th style="min-width:230px">The main doubt</th>
+      </tr></thead>
+      <tbody id="cmp-body"></tbody>
+    </table>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<!-- ══════════════ 10 · THE MEASUREMENT PROBLEM ══════════════ -->
+<section id="mrv">
+  <div class="snum">10 / THE HARD PART</div>
+  <h2>None of this is the hard part. Proving it happened is.</h2>
+  <p class="lede">Everything above is textbook chemistry. It is not in dispute. The reason marine carbon
+  removal is difficult has almost nothing to do with the reactions and almost everything to do with the fact
+  that <strong>you cannot put a meter on the ocean</strong>. The removal happens as a diffuse, months-long
+  inhale across a moving patch of sea. There is no flue to measure. There is only a model with a measured
+  input.</p>
+
+  <div class="grid g3" id="mrv-stats"></div>
+
+  <div class="verdict v-bad" style="margin-top:26px">
+    <span class="vico">&#9888;</span>
+    <div>Sit with the first two numbers together. Roughly <b>600,000 tonnes contracted</b> against roughly
+    <b>730 tonnes independently verified</b>. That is not an accusation against anyone in particular — it is
+    simply what a market of forward promises looks like before the verification catches up.</div>
+  </div>
+
+  <h3>Four things worth knowing about how this market actually behaves</h3>
+  <ul class="clean q" id="mrv-notes"></ul>
+</section>
+<div class="hr"></div>
+
+<!-- ══════════════ 10 · GIGABLUE ══════════════ -->
+<section id="gigablue">
+  <div class="snum">11 / A COMPANY IN THIS SPACE</div>
+  <h2>Gigablue: where their idea sits on this map</h2>
+  <p class="lede">Gigablue is a marine carbon-removal company operating in New Zealand waters. Their approach
+  belongs to the <strong>biological pump</strong> family from section 7 — not the alkalinity family — which
+  means the questions that decide whether it works are the export-and-durability questions, not the
+  chemistry ones.</p>
+
+  <figure class="panel">
+    <div class="panel-t">The concept, as described</div>
+    <div class="figscroll"><div id="fig-particle"></div></div>
+    <figcaption>An engineered particle is released at the surface. Algae grow on it, fixing dissolved carbon
+    by photosynthesis. The loaded particle sinks below the thermocline, carrying that carbon out of contact
+    with the atmosphere. It is the biological pump with a manufactured substrate — and note where the
+    atmospheric removal actually lives on this diagram: not in any of the four steps, but in the air-to-sea
+    inhale that has to refill the dissolved carbon the algae consumed.</figcaption>
+  </figure>
+
+  <div class="grid g2">
+    <div class="panel tight">
+      <div class="panel-t" style="color:var(--teal)">What the company says</div>
+      <ul class="clean" id="gb-says"></ul>
+    </div>
+    <div class="panel tight">
+      <div class="panel-t" style="color:var(--amber)">What is publicly documented</div>
+      <ul class="clean q" id="gb-doc"></ul>
+    </div>
+  </div>
+
+  <h3>What independent scientists have said</h3>
+  <p>This is contested territory and it would be dishonest to present it otherwise. The criticism below is
+  attributed; it is reporting on what named researchers and journalists have said, not a verdict of ours.</p>
+  <div id="gb-crit"></div>
+
+  <h3>The questions that would settle it</h3>
+  <ul class="clean q" id="gb-open"></ul>
+
+  <div class="verdict v-mixed">
+    <span class="vico">&#9888;</span>
+    <div>Read this section as a case study in <b>where the hard part lives</b>. Nothing about growing algae on
+    a particle is chemically doubtful. The doubt is entirely about the two things this whole page has been
+    building toward: <b>did the atmosphere actually inhale, and did the carbon actually stay down?</b> Those
+    are the questions to ask of any marine CDR company, including this one.</div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<!-- ══════════════ VIDEO ══════════════ -->
+<section id="watch">
+  <div class="snum">WATCH</div>
+  <h2>If you would rather be told than read</h2>
+  <p class="lede">Four videos worth the time, chosen for accuracy rather than production values.</p>
+  <div class="grid g2" id="vidlist"></div>
+  <p style="font-size:13px;color:var(--dim);margin-top:18px">Links open on YouTube &mdash; not embedded here.</p>
+</section>
+
+<div class="hr"></div>
+
+<!-- ══════════════ GLOSSARY ══════════════ -->
+<section id="glossary">
+  <div class="snum">REFERENCE</div>
+  <h2>Glossary</h2>
+  <div class="grid g2" id="gloss"></div>
+</section>
+
+<footer>
+  <div style="font-weight:700;color:var(--muted);margin-bottom:6px">Sources</div>
+  <div style="font-size:12.5px;margin-bottom:6px">Assembled from peer-reviewed literature, national-academy
+  assessments, registry methodologies and news reporting. Where the science is genuinely unsettled, this page
+  says so rather than picking a side.</div>
+  <div class="srclist" id="srcs"></div>
+  <div style="margin-top:26px;font-size:12px;color:var(--dim)">
+    Figures drawn from stoichiometry, not stock art · chemistry current to 2026
+  </div>
+</footer>
+
+
+</div>
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   DATA — every research-derived value the figures and tables read from.
+   Numbers here were gathered from primary literature and adversarially
+   fact-checked; where the literature genuinely disagrees, the page says so.
+   ══════════════════════════════════════════════════════════════════════ */
+const DATA = {
+
+  /* Frankignoulle et al. 1994 define ψ, the mol CO₂ released per mol CaCO₃
+     precipitated (~0.6 in warm surface water). The sink/source threshold for a
+     calcifying organism is its reciprocal, 1/ψ ≈ 1.65. */
+  rainThreshold: 1.65,
+
+  /* Baker et al. 2022 (GBC), North Atlantic: fraction of exported carbon still
+     below the mixed layer after 100 years, by remineralisation depth. */
+  depthBands: [
+    { top: 0,    bot: 200,  depth: "0 – 200 m",       dur: "months",     col: "#ff7a5c",
+      note: "the mixed layer — still breathing with the atmosphere" },
+    { top: 200,  bot: 700,  depth: "≈ 500 m",         dur: "28% holds",  col: "#ffc94d",
+      note: "below the thermocline, but most of it is back within a century" },
+    { top: 700,  bot: 1500, depth: "≈ 1,000 m",       dur: "66% holds",  col: "#35d0c0",
+      note: "Gigablue's stated target depth — two thirds still down at 100 yr" },
+    { top: 1500, bot: 4000, depth: "≈ 2,000 m +",     dur: "94% holds",  col: "#5fe08a",
+      note: "genuinely durable on a human timescale; sediments longer still" },
+  ],
+
+  compare: [
+    { method: "Coccolithophore calcification",
+      mechanism: "Cells build calcite plates from bicarbonate",
+      ledger: "ΔTA −2 · ΔDIC −1", dir: "down",
+      co2: "releases ~0.6 CO₂ per CaCO₃",
+      durability: "geological only (10⁴–10⁶ yr, via burial)",
+      maturity: "not a deployed CDR method",
+      doubt: "The calcification half is a CO₂ source, full stop. Only the organic half is a sink — and the two travel together." },
+
+    { method: "Silicate weathering (olivine, basalt)",
+      mechanism: "CO₂-charged water dissolves rock into bicarbonate",
+      ledger: "ΔTA +4 · ΔDIC +4", dir: "up",
+      co2: "4 mol per Mg₂SiO₄ ≈ 1.25 t/t (theoretical)",
+      durability: "~10⁵ yr as bicarbonate; permanent as carbonate",
+      maturity: "field trials; first credits delivered",
+      doubt: "Grinding energy, slow dissolution kinetics, secondary minerals that eat ~half the gain, and nickel/chromium release." },
+
+    { method: "Carbonate weathering (limestone)",
+      mechanism: "The calcification reaction, run backwards",
+      ledger: "ΔTA +2 · ΔDIC +1", dir: "up",
+      co2: "~1 mol per CaCO₃ ≈ 0.44 t/t; ~0.5 net in seawater",
+      durability: "net-zero beyond ~10 kyr",
+      maturity: "early trials",
+      doubt: "Half the product carbon came from the rock, not the air — roughly a quarter of olivine's yield per tonne." },
+
+    { method: "Ocean alkalinity enhancement",
+      mechanism: "Add hydroxide directly; the sea then inhales",
+      ledger: "ΔTA +2 · ΔDIC 0", dir: "up",
+      co2: "~0.8 mol CO₂ per mol alkalinity",
+      durability: "~10⁴–10⁵ yr",
+      maturity: "permitted pilots (LOC-NESS, Planetary, Ebb)",
+      doubt: "Equilibration efficiency ranges 0.2–0.85 after a year depending on site. Runaway CaCO₃ precipitation caps the dose rate." },
+
+    { method: "Iron / nutrient fertilisation",
+      mechanism: "Relieve nutrient limitation, grow more plankton",
+      ledger: "ΔDIC −106 · ΔTA +17", dir: "up",
+      co2: "highly variable; often near zero exported",
+      durability: "set by remineralisation depth",
+      maturity: "13 experiments 1993–2009; no commercial deployment",
+      doubt: "Nutrient robbing downstream, weak and variable export, subsurface oxygen loss and N₂O. NASEM rates it low-confidence." },
+
+    { method: "Engineered particle sinking",
+      mechanism: "Grow algae on a substrate, sink it below 1,000 m",
+      ledger: "ΔDIC −106 · ΔTA +17", dir: "up",
+      co2: "claimed ~100× a ~1% baseline (archived page, now removed)",
+      durability: "claimed centuries–millennia at ≥1,000 m",
+      maturity: "small trials; credits pre-sold",
+      doubt: "No peer-reviewed evidence of algae colonisation, sinking rate or export. NZ EPA called the full-scale plan illegal dumping." },
+  ],
+
+  gigablue: {
+    says: [
+      "The product is an engineered substrate marketed as a <strong>\"carbon-carrier pod\"</strong> \u2014 in the company's words a nutrient shell around a gravity-controlling core, made of non-toxic biodegradable materials. It is released at sea, floats while local phytoplankton grow on and around it, then a <strong>controlled sinking trigger</strong> sends it and its carbon to the deep ocean.",
+      "Co-founder Ori Shaashua's framing to the Associated Press: <em>\"We are an elevator for carbon. We are exporting the carbon from the top to the bottom.\"</em> The founding team is listed as Dotan Levy (CEO), Shaashua (CCO), Sapir Markus-Alford (CTO) and Guy Shafran Liss (COO).",
+      "<strong>The timing claims have moved.</strong> An archived science page (December 2025) said the particle would begin its descent within 15 days and cross the thermocline to a <em>minimum</em> 1,000 m. A January 2025 interview described a 10-day cycle with no depth given. The current site says the pods sink after <strong>approximately 18 days</strong> floating at the surface.",
+      "<strong>A claim that has since disappeared.</strong> The archived page stated that only ~1% of phytoplankton carbon naturally reaches the sea bottom and that Gigablue improves the sequestration ratio <em>\"by two orders of magnitude\"</em>. Taken literally that is 1% \u00d7 100 = 100%, i.e. essentially perfect sequestration. <strong>That page now returns a 404, and neither figure appears anywhere on the current site.</strong>",
+      "About <strong>30%</strong> of the primary producers grown are eaten by local fauna \u2014 presented as an ecosystem co-benefit. Independent scientists note the same consumption is a carbon <em>loss</em> pathway: grazers respire it.",
+      "The company <strong>disputes</strong> that this is ocean iron fertilisation. Markus-Alford told AP: <em>\"we looked at iron fertilization as an inspiration of something to avoid\"</em>, arguing the iron stays bound in the substrate rather than dispersing, and that all materials are <em>\"natural, nontoxic, nonhazardous, and can be found in the ocean.\"</em>",
+      "The stated target is <strong>one gigatonne of CO\u2082 removal per year by 2035</strong>.",
+    ],
+    doc: [
+      "Founded in Israel in <strong>2022</strong>, originally named <strong>Gigaton</strong>. Operates heavily in New Zealand.",
+      "<strong>14 January 2025</strong> — a four-year, <strong>200,000-tonne</strong> offtake with aviation investment firm SkiesFifty, delivery by 2029. By AP's count that was <strong>more than half of all ocean-based carbon credits sold in 2024</strong>. SkiesFifty is both customer and investor.",
+      "Two voyages in 2024, off Dunedin/Otago. Materials: pure vermiculite in the first trial; vermiculite, ground rock, plant-based wax, manganese and iron in the second.",
+      "<strong>Late September 2025</strong> — New Zealand's EPA <strong>rejected</strong> two applications to release up to 1,000 tonnes of particles off Otago, concluding the release amounted to <strong>dumping</strong>, illegal under the relevant marine legislation.",
+      "<strong>January 2026</strong> — a drastically reduced trial was approved and ran off Otago in March 2026 using <strong>55 kg</strong> of substrate inside mesh containment pens. That is roughly <strong>1/18,000th</strong> of the mass originally proposed.",
+      "The Puro.earth <strong>Microalgae Carbon Fixation and Sinking (MCFS)</strong> methodology was approved <strong>30 September 2025</strong>. Puro states it was \"first initiated by Gigablue\" and then carried forward by Puro's science team. It requires HNLC-region siting, ≥200-year storage, &gt;20 m/hr sinking and a 1 Mt-per-facility cap.",
+      "Puro.earth is a <strong>private voluntary-market registry</strong> (majority-owned by Nasdaq), not a regulator. Certification confers no permit and does not substitute for national marine consent or London Protocol obligations.",
+      "The XPRIZE recognition was an <strong>\"X-Factor Award\" for a non-finalist</strong> — no prize money and no advancement to the finals.",
+      "<strong>January 2026</strong> — a $20M first close of a Series A led by Planet Ocean Capital.",
+      "Earth Sciences New Zealand (formerly NIWA) chartered the research vessel and reviewed methodology drafts — but <strong>explicitly did not assess regulatory compliance or environmental thresholds</strong>.",
+    ],
+    crit: [
+      { who: "Thomas Ki\u00f8rboe", aff: "phytoplankton ecologist, Technical University of Denmark",
+        q: "Typical phytoplankton do not grow on surfaces, and they do not colonize particles. To most phytoplankton ecologists, this would just be, I think, absurd.",
+        src: "Associated Press, 3 July 2025" },
+      { who: "Philip Boyd", aff: "University of Tasmania \u2014 among the world's leading ocean iron-fertilisation experimentalists",
+        q: "Doubts that adequate sunlight reaches algae inside the particles, and warns the stated sinking rate of up to ~100 metres per hour could shear the algae off during descent.",
+        src: "Associated Press, 3 July 2025 (paraphrased)" },
+      { who: "Ken Buesseler", aff: "marine radiochemist, Woods Hole Oceanographic Institution",
+        q: "There has to be a relationship between what they're putting in the ocean and the carbon dioxide that's dissolved in seawater for this to, quote, work.",
+        src: "Associated Press, 3 July 2025" },
+      { who: "James Kerry", aff: "OceanCare \u00b7 James Cook University",
+        q: "What we've got is a situation of a company, a startup, upfront selling large quantities of credits for a technology that is unproven.",
+        src: "Associated Press, 3 July 2025" },
+      { who: "Helene Muri", aff: "climate scientist, NILU (Norway)",
+        q: "No mCDR method today has a sufficiently robust, comprehensive MRV system to support safe, large-scale deployment or crediting \u2014 calling the 200,000-tonne-by-2029 contract \u201cmost likely premature\u201d.",
+        src: "RNZ, 2026" },
+      { who: "Karen Scott", aff: "professor of marine law, University of Canterbury",
+        q: "The method as described is \u201cclearly ocean fertilisation\u201d under international instruments \u2014 which matters, because ocean fertilisation is the one marine geoengineering activity explicitly listed under the London Protocol framework.",
+        src: "RNZ, 2026" },
+      { who: "Lennart Bach", aff: "University of Tasmania",
+        q: "On gigatonne-scale claims in this field generally: \u201cWhenever I hear gigaton, I'd be very careful.\u201d",
+        src: "RNZ, 2026" },
+    ],
+    open: [
+      "<strong>Do phytoplankton actually colonise the substrate?</strong> This is the load-bearing claim and the one with no public evidence behind it. Company materials say data and methods are \"being prepared for publication\" \u2014 a statement about intent, not a published result.",
+      "<strong>Did the atmosphere actually inhale?</strong> Carbon exported downward is not carbon removed from the air until surface water re-equilibrates \u2014 months to about a year. Assuming instantaneous equilibration materially overstates removal.",
+      "<strong>How deep, and how much survived?</strong> Sequestration efficiency over 100 years runs about <strong>28% at 500 m, 66% at 1,000 m, 94% at 2,000 m</strong>. Where the carbon remineralises is the difference between a real credit and a rounding error.",
+      "<strong>What is the particle actually made of?</strong> Three different disclosed formulations across three deployments, against a patent AP describes as listing up to 18 chemicals and metals including nickel and vanadium, and a CTO statement that all materials are ocean-native.",
+      "<strong>Is it legally ocean fertilisation?</strong> The company and Puro both say no, on the grounds that nutrients stay bound. Two independent experts quoted by AP and RNZ say yes. No regulator has ruled on the substance.",
+      "<strong>Can a 55 kg contained trial demonstrate anything about open-ocean deployment?</strong> Containment removes exactly the variables at issue \u2014 dispersal, dilution, grazing losses in open water, and ecosystem effects.",
+      "<strong>Have any credits actually been issued?</strong> No public Puro registry entry was found, though the registry paginates and the search was not exhaustive. The SkiesFifty price per tonne has never been disclosed.",
+    ],
+  },
+
+  /* the measurement and market reality \u2014 the part of this field that is not chemistry */
+  mrv: {
+    stats: [
+      { v: "~600,000 t", l: "contracted", n: "versus roughly <strong>730 tonnes independently verified</strong> to date. Marine CDR today is a market of forward promises." },
+      { v: "625.6 t", l: "the first verified marine CDR credits", n: "Planetary Technologies, Tufts Cove, Halifax, 16 June 2025. Buyers: Stripe, Shopify, British Airways. Registry: Isometric." },
+      { v: "10 vs 210", l: "signal versus noise, in \u00b5atm", n: "A 10 \u00b5mol/kg alkalinity addition shifts pCO\u2082 by ~20 \u00b5atm, against coastal seasonal noise of 210 \u00b1 76 \u00b5atm. Open-ocean noise is smaller but still exceeds the signal." },
+      { v: "&gt;50%", l: "MRV share of project cost", n: "For open-system techniques like OAE and enhanced weathering. In direct air capture the expensive part is the machine; here, much of the expense is proving anything happened." },
+      { v: "~$270/t", l: "benchmark marine CDR price", n: "Frontier\u2013Planetary, August 2025: 115,211 tonnes for $31.3M, delivered 2026\u20132030. Planetary's long-run target is $50\u2013160/t." },
+      { v: "10\u2074\u201310\u2075 yr", l: "bicarbonate storage durability", n: "Isometric classes this as \"no observable risk\", with a 0% buffer-pool requirement. It is the strongest card the alkalinity routes hold." },
+    ],
+    notes: [
+      "<strong>Buyers have drawn a line at biology.</strong> Frontier \u2014 the largest advance-market commitment in the field \u2014 restricts itself to <em>abiotic</em> pathways: direct ocean removal, ocean alkalinity enhancement, and inland water alkalinity enhancement. Not biomass sinking. That is a purchasing decision, not a scientific verdict, but it is a considered one.",
+      "<strong>Demand is fragile.</strong> Durable-CDR weighted average prices fell from $490/t in 2023 to $320/t in 2024. Running Tide \u2014 which had 25 customers including Microsoft, Shopify and Stripe \u2014 shut down in June 2024.",
+      "<strong>The conflict of interest is structural.</strong> Auditors are paid by developers, and registries earn fees on issuance. That bites hardest where a methodology was co-developed with the single company that stands to use it.",
+      "<strong>Frontier grades verifiability openly.</strong> Its Verification Confidence Levels run 1\u20135. Direct air capture, a closed system, sits at 5. Ocean pathways sit lower \u2014 the sector's own clearest admission that this is the hard part.",
+    ],
+  },
+
+  glossary: [
+    { t: "Total alkalinity (TA)", d: "The excess of proton acceptors over proton donors in seawater — a charge balance, not a measure of \"basicity\". Carbonate species supply over 95% of it; borate is the main non-carbon contributor." },
+    { t: "DIC", d: "Dissolved inorganic carbon: the sum of CO₂(aq), bicarbonate and carbonate. About 2 mmol per kg of seawater, roughly 90% of it bicarbonate." },
+    { t: "pCO₂", d: "The partial pressure of CO₂ a parcel of water would be in equilibrium with. If seawater pCO₂ is below the atmosphere's, CO₂ crosses in; if above, it crosses out." },
+    { t: "Revelle factor", d: "The ratio of the fractional change in pCO₂ to the fractional change in DIC — about 9 in the tropics to 15 in the Southern Ocean. It has risen roughly one unit since 1750, which means the ocean's ability to absorb CO₂ is weakening as it absorbs more." },
+    { t: "ψ (psi)", d: "Moles of CO₂ released per mole of CaCO₃ precipitated — about 0.6 in warm surface water, rising toward 1.0 as water cools and CO₂ rises. Seawater buffering is why it is not 1." },
+    { t: "Rain ratio (PIC:POC)", d: "Particulate inorganic carbon over particulate organic carbon. The threshold at which a calcifier flips from net sink to net source is 1/ψ ≈ 1.65 under modern warm-surface conditions." },
+    { t: "Ballast hypothesis", d: "The proposal that dense mineral phases make sinking aggregates fall faster and deeper. Klaas and Archer (2002) found ballast explains 85–90% of the variance in deep organic carbon flux, with calcite the dominant carrier." },
+    { t: "Martin curve", d: "The power-law attenuation of sinking flux with depth, F(z) = F₁₀₀·(z/100)^−b. Up to 90% of exported organic carbon is lost in the first 100 m below the euphotic zone." },
+    { t: "Equilibration efficiency", d: "The fraction of the theoretical ~0.8 mol CO₂ per mol alkalinity that a real deployment actually achieves. Ranges 0.2–0.85 after one year depending almost entirely on where you do it." },
+    { t: "Runaway precipitation", d: "Above roughly Ω-aragonite 5–7, added alkalinity triggers spontaneous CaCO₃ formation — which is calcification, which undoes the removal. It is the hard ceiling on how fast alkalinity can be added." },
+    { t: "Nutrient robbing", d: "Consuming a limiting nutrient in one patch of ocean means it is not available downstream. Part of the apparent local drawdown is productivity relocated rather than created." },
+    { t: "London Protocol", d: "The international treaty governing dumping at sea. Its 2013 marine-geoengineering amendment is adopted but NOT in force — only 9 of the 37 acceptances needed (two-thirds of the treaty's 56 Parties) have been lodged as of late 2025. The 2008 resolution's research exemption excludes activities generating financial gain." },
+  ],
+
+  sources: [
+    { t: "NASEM (2022) — A Research Strategy for Ocean-based Carbon Dioxide Removal and Sequestration", u: "https://nap.nationalacademies.org/catalog/26278" },
+    { t: "Associated Press (July 2025) — investigation into Gigablue's carbon-credit claims", u: "https://apnews.com/article/gigablue-carbon-credits-ocean-climate-6dd6d1cfe0e5c9e2c4c0f4bcd0eb0aa4" },
+    { t: "Frankignoulle, Canon & Gattuso (1994) — Marine calcification as a source of CO₂", u: "https://aslopubs.onlinelibrary.wiley.com/doi/10.4319/lo.1994.39.2.0458" },
+    { t: "Klaas & Archer (2002) — Association of sinking organic matter with various types of mineral ballast", u: "https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2001GB001765" },
+    { t: "Meyer & Riebesell (2015) — Responses of coccolithophores to ocean acidification: a meta-analysis", u: "https://bg.copernicus.org/articles/12/1671/2015/" },
+    { t: "Riebesell et al. (2000) — Reduced calcification of marine plankton in response to increased atmospheric CO₂", u: "https://www.nature.com/articles/35030078" },
+    { t: "Baker et al. (2022) — Slow-sinking particulate organic carbon in the Atlantic Ocean", u: "https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2021GB007101" },
+    { t: "Beerling et al. (2020) — Potential for large-scale CO₂ removal via enhanced rock weathering with croplands", u: "https://www.nature.com/articles/s41586-020-2448-9" },
+    { t: "CarbonPlan — Mapping the efficiency of ocean alkalinity enhancement", u: "https://carbonplan.org/research/oae-efficiency-explainer" },
+    { t: "Ocean Visions — Ocean Alkalinity Enhancement road map", u: "https://oceanvisions.org/ocean-alkalinity-enhancement/" },
+    { t: "Puro.earth — Microalgae Carbon Fixation and Sinking (MCFS) methodology", u: "https://puro.earth/methodologies" },
+    { t: "RNZ — reporting on Gigablue's New Zealand trials and the EPA decision", u: "https://www.rnz.co.nz/" },
+    { t: "GESAMP (2019) — High level review of a wide range of proposed marine geoengineering techniques", u: "http://www.gesamp.org/publications/high-level-review-of-a-wide-range-of-proposed-marine-geoengineering-techniques" },
+    { t: "Dickson — Guide to Best Practices for Ocean CO₂ Measurements", u: "https://www.ncei.noaa.gov/access/ocean-carbon-acidification-data-system/oceans/Handbook_2007.html" },
+  ],
+
+  videos: [
+    { id: "EMNuYOEBOWI", t: "Coccolithophores and Calcium", by: "Helen Czerski · The Royal Institution",
+      why: "The clearest short account of how these organisms build calcite and how that connects to chalk." },
+    { id: "5obQ6aGSyHY", t: "Ocean Alkalinity Enhancement (OAE)", by: "ClimateWorks",
+      why: "Walks through the alkalinity route — the one that points straight up on the master map." },
+    { id: "XnucBttbFxg", t: "Enhanced Rock Weathering for Carbon Dioxide Removal", by: "Leverhulme Centre for Climate Change Mitigation",
+      why: "The rock route, from an academic centre rather than a vendor." },
+    { id: "W6AZaCKgqbI", t: "Bloom of Coccolithophores — Mission Microbiomes", by: "Fondation Tara Océan",
+      why: "What a bloom actually looks like from a research vessel." },
+  ],
+};
+/* ══════════════════════════════════════════════════════════════════════
+   A tiny molecule-drawing engine. Atoms are circles, bonds are lines,
+   delocalised bonds are solid+dashed pairs, charges ride in a corner badge.
+   Everything below is declared as data and drawn by one function, so every
+   diagram on the page speaks the same visual language.
+   ══════════════════════════════════════════════════════════════════════ */
+const NS = "http://www.w3.org/2000/svg";
+
+function E(tag, attrs, parent) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) {
+    if (attrs[k] === null || attrs[k] === undefined) continue;
+    n.setAttribute(k, attrs[k]);
+  }
+  if (parent) parent.appendChild(n);
+  return n;
+}
+function svgRoot(host, w, h) {
+  const s = E("svg", { viewBox: `0 0 ${w} ${h}`, width: w, height: h,
+                       xmlns: NS, "font-family": "system-ui, sans-serif" });
+  host.appendChild(s);
+  return s;
+}
+
+/* ── the periodic palette ── */
+const ATOM = {
+  C:  { r: 15,   fill: "#38506a", ring: "#6d8dab", tc: "#e6f0fa", lab: "C"  },
+  O:  { r: 14,   fill: "#b93a28", ring: "#ff7a5c", tc: "#ffffff", lab: "O"  },
+  H:  { r: 9.5,  fill: "#7e97b0", ring: "#cddced", tc: "#0a1728", lab: "H"  },
+  Ca: { r: 19,   fill: "#2c8a54", ring: "#5fe08a", tc: "#eafff2", lab: "Ca" },
+  Mg: { r: 17,   fill: "#1d8a81", ring: "#35d0c0", tc: "#e9fffc", lab: "Mg" },
+  Si: { r: 16,   fill: "#9c7a1c", ring: "#ffc94d", tc: "#fff8e0", lab: "Si" },
+  N:  { r: 14,   fill: "#2b57a0", ring: "#6aa8ff", tc: "#eaf3ff", lab: "N"  },
+  S:  { r: 16,   fill: "#9c901c", ring: "#ffe066", tc: "#fffce0", lab: "S"  },
+  B:  { r: 14,   fill: "#9c5c1c", ring: "#ffb37a", tc: "#fff2e6", lab: "B"  },
+  Cl: { r: 16,   fill: "#3a8a3a", ring: "#8ce08c", tc: "#f0fff0", lab: "Cl" },
+  Na: { r: 18,   fill: "#63389c", ring: "#c58cff", tc: "#f5eaff", lab: "Na" },
+  P:  { r: 15,   fill: "#9c4a1c", ring: "#ff9a5c", tc: "#fff0e6", lab: "P"  },
+};
+
+/* ── the molecules, as coordinates + bond orders ──
+   bond order: 1 single · 2 double · 1.5 delocalised (solid + dashed) */
+const MOL = {
+  co2:  { atoms: [["O",-42,0],["C",0,0],["O",42,0]],
+          bonds: [[0,1,2],[1,2,2]], charge: 0, name: "CO₂" },
+
+  h2co3:{ atoms: [["C",0,0],["O",0,-40],["O",-36,24],["H",-60,40],["O",36,24],["H",60,40]],
+          bonds: [[0,1,2],[0,2,1],[2,3,1],[0,4,1],[4,5,1]], charge: 0, name: "H₂CO₃" },
+
+  hco3: { atoms: [["C",0,0],["O",-38,-20],["O",38,-20],["O",0,40],["H",28,62]],
+          bonds: [[0,1,1.5],[0,2,1.5],[0,3,1],[3,4,1]], charge: -1, name: "HCO₃⁻" },
+
+  co3:  { atoms: [["C",0,2],["O",0,-40],["O",-38,26],["O",38,26]],
+          bonds: [[0,1,1.5],[0,2,1.5],[0,3,1.5]], charge: -2, name: "CO₃²⁻" },
+
+  oh:   { atoms: [["O",-12,0],["H",16,16]], bonds: [[0,1,1]], charge: -1, name: "OH⁻" },
+
+  h2o:  { atoms: [["O",0,-6],["H",-28,18],["H",28,18]],
+          bonds: [[0,1,1],[0,2,1]], charge: 0, name: "H₂O" },
+
+  borate:{ atoms: [["B",0,0],["O",-32,-28],["H",-54,-46],["O",32,-28],["H",54,-46],
+                   ["O",-32,30],["H",-54,48],["O",32,30],["H",54,48]],
+          bonds: [[0,1,1],[1,2,1],[0,3,1],[3,4,1],[0,5,1],[5,6,1],[0,7,1],[7,8,1]],
+          charge: -1, name: "B(OH)₄⁻" },
+
+  no3:  { atoms: [["N",0,2],["O",0,-38],["O",-36,25],["O",36,25]],
+          bonds: [[0,1,1.5],[0,2,1.5],[0,3,1.5]], charge: -1, name: "NO₃⁻" },
+
+  so4:  { atoms: [["S",0,0],["O",-34,-30],["O",34,-30],["O",-34,30],["O",34,30]],
+          bonds: [[0,1,1.5],[0,2,1.5],[0,3,1.5],[0,4,1.5]], charge: -2, name: "SO₄²⁻" },
+
+  cl:   { atoms: [["Cl",0,0]], bonds: [], charge: -1, name: "Cl⁻" },
+  ca:   { atoms: [["Ca",0,0]], bonds: [], charge: 2,  name: "Ca²⁺" },
+  mg:   { atoms: [["Mg",0,0]], bonds: [], charge: 2,  name: "Mg²⁺" },
+  na:   { atoms: [["Na",0,0]], bonds: [], charge: 1,  name: "Na⁺" },
+  h:    { atoms: [["H",0,0]], bonds: [], charge: 1,  name: "H⁺" },
+
+  /* forsterite olivine: an isolated silicate tetrahedron with two Mg counter-ions */
+  olivine:{ atoms: [["Si",0,0],["O",0,-38],["O",-34,26],["O",34,26],["O",0,20],
+                    ["Mg",-72,-16],["Mg",72,-16]],
+          bonds: [[0,1,1],[0,2,1],[0,3,1],[0,4,1]], charge: 0, name: "Mg₂SiO₄" },
+
+  h4sio4:{ atoms: [["Si",0,0],["O",-32,-28],["H",-54,-46],["O",32,-28],["H",54,-46],
+                   ["O",-32,30],["H",-54,48],["O",32,30],["H",54,48]],
+          bonds: [[0,1,1],[1,2,1],[0,3,1],[3,4,1],[0,5,1],[5,6,1],[0,7,1],[7,8,1]],
+          charge: 0, name: "H₄SiO₄" },
+
+  o2:   { atoms: [["O",-22,0],["O",22,0]], bonds: [[0,1,2]], charge: 0, name: "O₂" },
+};
+
+/* ── charge glyphs ── */
+function chargeText(c) {
+  if (!c) return "";
+  const mag = Math.abs(c) > 1 ? String(Math.abs(c)) : "";
+  return mag + (c < 0 ? "−" : "+");
+}
+
+/* ── draw one molecule centred at (cx,cy) at scale s ── */
+function drawMol(parent, key, cx, cy, s, opt) {
+  s = s || 1; opt = opt || {};
+  const m = MOL[key];
+  if (!m) { console.warn("no molecule", key); return null; }
+  const g = E("g", { transform: `translate(${cx},${cy}) scale(${s})`,
+                     opacity: opt.opacity == null ? 1 : opt.opacity }, parent);
+  if (opt.id) g.setAttribute("id", opt.id);
+  if (opt.cls) g.setAttribute("class", opt.cls);
+
+  const P = m.atoms.map(a => ({ el: a[0], x: a[1], y: a[2] }));
+
+  /* bonds first, so atoms paint over their ends */
+  const bg = E("g", {}, g);
+  m.bonds.forEach(b => {
+    const a = P[b[0]], z = P[b[1]], order = b[2];
+    const dx = z.x - a.x, dy = z.y - a.y;
+    const L = Math.hypot(dx, dy) || 1;
+    const ux = dx / L, uy = dy / L;
+    const ra = ATOM[a.el].r - 2, rz = ATOM[z.el].r - 2;
+    const x1 = a.x + ux * ra, y1 = a.y + uy * ra;
+    const x2 = z.x - ux * rz, y2 = z.y - uy * rz;
+    const px = -uy, py = ux;            /* perpendicular */
+    const stroke = opt.bondColor || "#8fb0cc";
+    if (order === 2) {
+      [-3.6, 3.6].forEach(o =>
+        E("line", { x1: x1 + px*o, y1: y1 + py*o, x2: x2 + px*o, y2: y2 + py*o,
+                    stroke, "stroke-width": 3, "stroke-linecap": "round" }, bg));
+    } else if (order === 1.5) {
+      E("line", { x1, y1, x2, y2, stroke, "stroke-width": 3.4, "stroke-linecap": "round" }, bg);
+      E("line", { x1: x1 + px*5.2, y1: y1 + py*5.2, x2: x2 + px*5.2, y2: y2 + py*5.2,
+                  stroke, "stroke-width": 2.4, "stroke-dasharray": "5 4",
+                  "stroke-linecap": "round", opacity: .8 }, bg);
+    } else {
+      E("line", { x1, y1, x2, y2, stroke, "stroke-width": 3.4, "stroke-linecap": "round" }, bg);
+    }
+  });
+
+  /* atoms */
+  P.forEach(a => {
+    const A = ATOM[a.el];
+    E("circle", { cx: a.x, cy: a.y, r: A.r, fill: A.fill,
+                  stroke: A.ring, "stroke-width": 2 }, g);
+    E("text", { x: a.x, y: a.y + A.r * 0.34, "text-anchor": "middle",
+                "font-size": A.r * 0.98, "font-weight": 700, fill: A.tc,
+                "letter-spacing": "-0.02em" }, g).textContent = A.lab;
+  });
+
+  /* charge badge, parked up-right of the widest atom */
+  const ch = opt.charge === undefined ? m.charge : opt.charge;
+  if (ch) {
+    let mx = -1e9, my = 1e9;
+    P.forEach(a => { const R = ATOM[a.el].r;
+      if (a.x + R > mx) mx = a.x + R;
+      if (a.y - R < my) my = a.y - R; });
+    const bx = mx + 4, by = Math.max(my + 6, -46);
+    const neg = ch < 0;
+    E("circle", { cx: bx, cy: by, r: 13,
+                  fill: neg ? "rgba(53,208,192,.20)" : "rgba(255,143,184,.20)",
+                  stroke: neg ? "#35d0c0" : "#ff8fb8", "stroke-width": 2 }, g);
+    E("text", { x: bx, y: by + 5, "text-anchor": "middle", "font-size": 14,
+                "font-weight": 800, fill: neg ? "#35d0c0" : "#ff8fb8" }, g)
+      .textContent = chargeText(ch);
+  }
+
+  /* optional formula caption under the molecule */
+  if (opt.label !== false) {
+    let lo = -1e9;
+    P.forEach(a => { const R = ATOM[a.el].r; if (a.y + R > lo) lo = a.y + R; });
+    const t = E("text", { x: 0, y: lo + (opt.labelGap || 30), "text-anchor": "middle",
+                          "font-size": 19, "font-weight": 700,
+                          fill: opt.labelColor || "#cfe0f0",
+                          "font-family": "ui-monospace, Menlo, monospace" }, g);
+    t.textContent = opt.label || m.name;
+  }
+  return g;
+}
+
+/* ── small helpers shared by the figures ── */
+function txt(p, x, y, s, o) {
+  o = o || {};
+  const t = E("text", { x, y, "text-anchor": o.anchor || "middle",
+    "font-size": o.size || 14, "font-weight": o.weight || 500,
+    fill: o.fill || "#93abc4",
+    "font-family": o.mono ? "ui-monospace, Menlo, monospace" : "system-ui, sans-serif",
+    "letter-spacing": o.ls || "0", opacity: o.opacity == null ? 1 : o.opacity }, p);
+  t.textContent = s;
+  return t;
+}
+function arrow(p, x1, y1, x2, y2, o) {
+  o = o || {};
+  const c = o.color || "#6d8dab";
+  const g = E("g", {}, p);
+  E("line", { x1, y1, x2, y2, stroke: c, "stroke-width": o.w || 3,
+              "stroke-linecap": "round",
+              "stroke-dasharray": o.dash || null }, g);
+  const a = Math.atan2(y2 - y1, x2 - x1), hl = o.head || 12;
+  E("polygon", { points:
+      `${x2},${y2} ${x2 - hl*Math.cos(a-0.42)},${y2 - hl*Math.sin(a-0.42)} ` +
+      `${x2 - hl*Math.cos(a+0.42)},${y2 - hl*Math.sin(a+0.42)}`, fill: c }, g);
+  return g;
+}
+function plus(p, x, y, size) {
+  txt(p, x, y + (size||26)*0.34, "+", { size: size || 30, weight: 300, fill: "#5f7d99" });
+}
+function panelRect(p, x, y, w, h, o) {
+  o = o || {};
+  return E("rect", { x, y, width: w, height: h, rx: o.rx == null ? 12 : o.rx,
+    fill: o.fill || "rgba(255,255,255,.028)",
+    stroke: o.stroke || "rgba(29,58,92,.9)", "stroke-width": o.sw || 1.5 }, p);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   A GENERIC REACTION ROW.  Give it reactants and products; it lays them
+   out with coefficients, plus signs and an arrow, and sizes itself.
+   ══════════════════════════════════════════════════════════════════════ */
+function reactionRow(host, spec) {
+  const S      = spec.scale || 0.72;
+  const slotW  = spec.slotW || 150;
+  const gapW   = 40;                       /* space for a "+" */
+  const arrowW = spec.arrowW || 108;
+  const rowY   = spec.rowY || 130;
+  const H      = spec.h || 250;
+
+  const nL = spec.left.length, nR = spec.right.length;
+  const leftW  = nL * slotW + (nL - 1) * gapW;
+  const rightW = nR * slotW + (nR - 1) * gapW;
+  const W = Math.max(spec.minW || 760, 40 + leftW + arrowW + rightW + 40);
+
+  const s = svgRoot(host, W, H);
+  const startL = (W - (leftW + arrowW + rightW)) / 2;
+
+  function bank(items, x0) {
+    let x = x0;
+    items.forEach((it, i) => {
+      const cx = x + slotW / 2;
+      if (it.n && it.n > 1) {
+        txt(s, cx - slotW / 2 + 10, rowY + 8, String(it.n),
+            { size: 27, weight: 800, fill: it.nColor || "#ffc94d", mono: true });
+      }
+      drawMol(s, it.mol, cx + (it.n > 1 ? 12 : 0), rowY + (it.dy || 0), S, {
+        label: it.label, labelColor: it.labelColor, opacity: it.opacity,
+        bondColor: it.bondColor, charge: it.charge,
+      });
+      if (it.tag) txt(s, cx + (it.n > 1 ? 12 : 0), rowY + (it.dy || 0) + 78, it.tag,
+                      { size: 11.5, fill: it.tagColor || "#63809c", weight: 600, ls: ".08em" });
+      x += slotW;
+      if (i < items.length - 1) { plus(s, x + gapW / 2, rowY + (it.dy || 0)); x += gapW; }
+    });
+    return x;
+  }
+
+  bank(spec.left, startL);
+  const ax = startL + leftW;
+  arrow(s, ax + 20, rowY, ax + arrowW - 20, rowY, { color: spec.arrowColor || "#35d0c0", w: 4, head: 15 });
+  if (spec.arrowLabel)
+    txt(s, ax + arrowW / 2, rowY - 20, spec.arrowLabel,
+        { size: 12, fill: spec.arrowColor || "#35d0c0", weight: 700, ls: ".1em" });
+  if (spec.arrowSub)
+    txt(s, ax + arrowW / 2, rowY + 30, spec.arrowSub, { size: 11.5, fill: "#63809c" });
+  bank(spec.right, ax + arrowW);
+
+  if (spec.title) txt(s, W / 2, 34, spec.title, { size: 15, weight: 700, fill: "#e9f2fb" });
+  if (spec.sub)   txt(s, W / 2, 56, spec.sub, { size: 12.5, fill: "#63809c" });
+  if (spec.foot)  txt(s, W / 2, H - 18, spec.foot,
+                      { size: 13, weight: 700, fill: spec.footColor || "#93abc4", mono: true });
+  return s;
+}
+/* ══════════════════════════════════════════════════════════════════════
+   FIGURE 1 · the balance beam — alkalinity versus dissolved carbon
+   ══════════════════════════════════════════════════════════════════════ */
+function figBeam(host) {
+  const W = 860, H = 400, s = svgRoot(host, W, H);
+  const cx = W / 2, fy = 300, beamY = 150, half = 250, tilt = -9;
+
+  /* zones */
+  txt(s, cx - half + 40, 44, "TIP THIS WAY  →  THE SEA INHALES", { size: 12, weight: 800, fill: "#5fe08a", ls: ".14em" });
+  txt(s, cx + half - 40, 44, "←  TIP THIS WAY  ·  THE SEA EXHALES", { size: 12, weight: 800, fill: "#ff7a5c", ls: ".14em" });
+
+  /* fulcrum */
+  E("polygon", { points: `${cx},${beamY + 26} ${cx - 34},${fy} ${cx + 34},${fy}`,
+                 fill: "rgba(53,208,192,.16)", stroke: "#35d0c0", "stroke-width": 2 }, s);
+  txt(s, cx, fy + 26, "seawater pCO₂", { size: 13, weight: 700, fill: "#35d0c0" });
+  txt(s, cx, fy + 46, "the number the atmosphere feels", { size: 11.5, fill: "#63809c" });
+
+  /* beam */
+  const beam = E("g", { transform: `rotate(${tilt} ${cx} ${beamY})` }, s);
+  E("line", { x1: cx - half, y1: beamY, x2: cx + half, y2: beamY,
+              stroke: "#6d8dab", "stroke-width": 9, "stroke-linecap": "round" }, beam);
+  E("circle", { cx, cy: beamY, r: 11, fill: "#0e1e33", stroke: "#35d0c0", "stroke-width": 3 }, beam);
+
+  /* pans */
+  function pan(px, label, sub, color, items) {
+    const g = E("g", {}, beam);
+    E("line", { x1: px, y1: beamY, x2: px, y2: beamY + 46, stroke: "#4b6a86", "stroke-width": 2.5 }, g);
+    const pw = 210, ph = 96;
+    E("rect", { x: px - pw / 2, y: beamY + 46, width: pw, height: ph, rx: 12,
+                fill: `${color}18`, stroke: color, "stroke-width": 2 }, g);
+    txt(g, px, beamY + 74, label, { size: 17, weight: 800, fill: color, mono: true });
+    txt(g, px, beamY + 96, sub, { size: 11.5, fill: "#9fb6cc" });
+    txt(g, px, beamY + 122, items, { size: 11, fill: "#63809c", mono: true });
+    return g;
+  }
+  pan(cx - half + 62, "ALKALINITY", "the pulling column", "#5fe08a", "HCO₃⁻ + 2CO₃²⁻ + B(OH)₄⁻ + OH⁻");
+  pan(cx + half - 62, "DIC", "the pushing column", "#ff7a5c", "CO₂ + HCO₃⁻ + CO₃²⁻");
+
+  txt(s, cx, H - 12, "raise the left pan and CO₂ crosses INTO the sea  ·  raise the right pan and it crosses OUT",
+      { size: 12.5, fill: "#7e97b0" });
+  return s;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   FIGURE 2 · the Bjerrum ladder — one carbon, three costumes
+   ══════════════════════════════════════════════════════════════════════ */
+function figLadder(host) {
+  const W = 1000, H = 340, s = svgRoot(host, W, H);
+  const y = 150;
+  const xs = [125, 375, 625, 875];
+  const steps = [
+    { mol: "co2",  cap: "carbon dioxide",  note: "linear · two double bonds · no charge",         col: "#ff7a5c" },
+    { mol: "h2co3", cap: "carbonic acid",  note: "hydrated · bent · two OH arms",                 col: "#ffc94d" },
+    { mol: "hco3", cap: "bicarbonate",     note: "~89% of ocean carbon · charge shared over 2 O", col: "#35d0c0" },
+    { mol: "co3",  cap: "carbonate",       note: "flat, symmetric · the shape calcite wants",     col: "#5fe08a" },
+  ];
+  steps.forEach((st, i) => {
+    drawMol(s, st.mol, xs[i], y, 0.78, { labelColor: st.col, labelGap: 34 });
+    txt(s, xs[i], y + 122, st.cap, { size: 13.5, weight: 700, fill: "#cfe0f0" });
+    txt(s, xs[i], y + 143, st.note, { size: 11, fill: "#63809c" });
+  });
+
+  const marks = [
+    { lab: "+ H₂O",  sub: "hydration",   pk: "" },
+    { lab: "− H⁺",   sub: "pK₁ ≈ 5.9",   pk: "1" },
+    { lab: "− H⁺",   sub: "pK₂ ≈ 9.0",   pk: "2" },
+  ];
+  for (let i = 0; i < 3; i++) {
+    const a = xs[i] + 82, b = xs[i + 1] - 82;
+    arrow(s, a, y, b, y, { color: "#6d8dab", w: 2.6, head: 11 });
+    txt(s, (a + b) / 2, y - 20, marks[i].lab, { size: 14, weight: 800, fill: "#a98cff", mono: true });
+    txt(s, (a + b) / 2, y - 40, marks[i].sub, { size: 11, fill: "#63809c" });
+  }
+
+  /* charge accumulator strip */
+  const by = H - 46;
+  txt(s, 40, by, "charge", { size: 11, fill: "#63809c", anchor: "start", weight: 700, ls: ".1em" });
+  ["0", "0", "1−", "2−"].forEach((c, i) => {
+    const on = i >= 2;
+    E("rect", { x: xs[i] - 26, y: by - 17, width: 52, height: 26, rx: 8,
+                fill: on ? "rgba(53,208,192,.14)" : "rgba(147,171,196,.07)",
+                stroke: on ? "#35d0c0" : "#3a5a7c", "stroke-width": 1.5 }, s);
+    txt(s, xs[i], by + 2, c, { size: 14, weight: 800, mono: true, fill: on ? "#35d0c0" : "#7e97b0" });
+  });
+  txt(s, W - 40, by, "…and alkalinity value rises with it", { size: 11.5, fill: "#63809c", anchor: "end" });
+  return s;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   FIGURE 3 · the Bjerrum plot — where the ocean actually sits
+   ══════════════════════════════════════════════════════════════════════ */
+function figBjerrum(host) {
+  const W = 880, H = 400, s = svgRoot(host, W, H);
+  const L = 70, R = W - 40, T = 40, B = H - 60;
+  const pk1 = 5.86, pk2 = 8.95;
+  const K1 = Math.pow(10, -pk1), K2 = Math.pow(10, -pk2);
+  const pHmin = 4, pHmax = 12;
+  const X = ph => L + (ph - pHmin) / (pHmax - pHmin) * (R - L);
+  const Y = f  => B - f * (B - T);
+
+  panelRect(s, L, T, R - L, B - T, { fill: "rgba(255,255,255,.018)", rx: 10 });
+
+  /* grid */
+  for (let ph = 4; ph <= 12; ph++) {
+    E("line", { x1: X(ph), y1: T, x2: X(ph), y2: B, stroke: "rgba(29,58,92,.75)", "stroke-width": 1 }, s);
+    txt(s, X(ph), B + 22, String(ph), { size: 12, fill: "#63809c", mono: true });
+  }
+  [0, .25, .5, .75, 1].forEach(f => {
+    E("line", { x1: L, y1: Y(f), x2: R, y2: Y(f), stroke: "rgba(29,58,92,.6)", "stroke-width": 1 }, s);
+    txt(s, L - 12, Y(f) + 4, (f * 100) + "%", { size: 11, fill: "#63809c", anchor: "end", mono: true });
+  });
+  txt(s, (L + R) / 2, H - 16, "pH", { size: 13, weight: 700, fill: "#93abc4" });
+  txt(s, 20, (T + B) / 2, "fraction of DIC", { size: 12, fill: "#93abc4",
+      anchor: "middle" }).setAttribute("transform", `rotate(-90 20 ${(T + B) / 2})`);
+
+  /* the three curves */
+  const series = [
+    { key: "co2",  col: "#ff7a5c", lab: "CO₂*",    f: h => h * h },
+    { key: "hco3", col: "#35d0c0", lab: "HCO₃⁻",   f: h => K1 * h },
+    { key: "co3",  col: "#5fe08a", lab: "CO₃²⁻",   f: h => K1 * K2 },
+  ];
+  series.forEach(sr => {
+    let d = "";
+    for (let ph = pHmin; ph <= pHmax + .001; ph += 0.04) {
+      const h = Math.pow(10, -ph);
+      const D = h * h + K1 * h + K1 * K2;
+      const v = sr.f(h) / D;
+      d += (d ? " L" : "M") + X(ph).toFixed(1) + "," + Y(v).toFixed(1);
+    }
+    E("path", { d, fill: "none", stroke: sr.col, "stroke-width": 3.2,
+                "stroke-linejoin": "round", "stroke-linecap": "round" }, s);
+  });
+
+  /* pre-industrial + today markers */
+  function marker(ph, col, lab, sub, dash) {
+    E("line", { x1: X(ph), y1: T, x2: X(ph), y2: B, stroke: col,
+                "stroke-width": 2.4, "stroke-dasharray": dash || null, opacity: .95 }, s);
+    txt(s, X(ph), T - 8, lab, { size: 12, weight: 800, fill: col });
+    if (sub) txt(s, X(ph), T - 24, sub, { size: 10.5, fill: "#63809c" });
+  }
+  marker(8.2, "#5f7d99", "pH 8.2", "1750", "5 5");
+  marker(8.1, "#ffc94d", "pH 8.1", "today");
+
+  /* readouts at today's pH */
+  const h = Math.pow(10, -8.1), D = h * h + K1 * h + K1 * K2;
+  const vals = [
+    { lab: "CO₂*",  v: h * h / D,      col: "#ff7a5c" },
+    { lab: "HCO₃⁻", v: K1 * h / D,     col: "#35d0c0" },
+    { lab: "CO₃²⁻", v: K1 * K2 / D,    col: "#5fe08a" },
+  ];
+  const bx = X(8.1) + 22;
+  panelRect(s, bx, T + 16, 190, 108, { fill: "rgba(8,19,31,.92)", stroke: "#1d3a5c", rx: 10 });
+  txt(s, bx + 14, T + 40, "at today's surface pH", { size: 10.5, anchor: "start", fill: "#63809c", weight: 700, ls: ".08em" });
+  vals.forEach((v, i) => {
+    txt(s, bx + 14, T + 64 + i * 22, v.lab, { size: 13, anchor: "start", fill: v.col, weight: 700, mono: true });
+    txt(s, bx + 176, T + 64 + i * 22, (v.v * 100).toFixed(1) + "%",
+        { size: 13, anchor: "end", fill: "#cfe0f0", weight: 700, mono: true });
+  });
+
+  /* curve labels */
+  txt(s, X(4.7), Y(.86), "CO₂*", { size: 13, weight: 800, fill: "#ff7a5c" });
+  txt(s, X(7.4), Y(.93), "HCO₃⁻", { size: 13, weight: 800, fill: "#35d0c0" });
+  txt(s, X(11.2), Y(.86), "CO₃²⁻", { size: 13, weight: 800, fill: "#5fe08a" });
+  return s;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   FIGURE 4 · THE MASTER MAP — the ΔTA / ΔDIC plane
+   ══════════════════════════════════════════════════════════════════════ */
+function figPlane(host) {
+  const W = 900, H = 620, s = svgRoot(host, W, H);
+  const cx = W / 2 - 40, cy = H / 2 + 6, Rr = 232;
+
+  /* the two half-planes, split by the ΔTA = ΔDIC diagonal */
+  const dx = Rr * 1.45;
+  E("path", { d: `M ${cx - dx} ${cy + dx} L ${cx + dx} ${cy - dx} L ${cx - dx} ${cy - dx} Z`,
+              fill: "rgba(95,224,138,.075)" }, s);
+  E("path", { d: `M ${cx - dx} ${cy + dx} L ${cx + dx} ${cy - dx} L ${cx + dx} ${cy + dx} Z`,
+              fill: "rgba(255,122,92,.075)" }, s);
+
+  /* axes */
+  E("line", { x1: cx - Rr - 40, y1: cy, x2: cx + Rr + 40, y2: cy, stroke: "#3a5a7c", "stroke-width": 1.6 }, s);
+  E("line", { x1: cx, y1: cy - Rr - 40, x2: cx, y2: cy + Rr + 40, stroke: "#3a5a7c", "stroke-width": 1.6 }, s);
+  txt(s, cx + Rr + 46, cy + 22, "ΔDIC →", { size: 12.5, weight: 700, fill: "#93abc4", anchor: "end" });
+  txt(s, cx - 14, cy - Rr - 48, "↑ ΔTA", { size: 12.5, weight: 700, fill: "#93abc4", anchor: "start" });
+
+  /* the dividing diagonal */
+  E("line", { x1: cx - Rr - 30, y1: cy + Rr + 30, x2: cx + Rr + 30, y2: cy - Rr - 30,
+              stroke: "#ffc94d", "stroke-width": 2.6, "stroke-dasharray": "9 6" }, s);
+  txt(s, cx - Rr + 22, cy + Rr - 4, "ΔTA = ΔDIC  ·  pCO₂ unchanged",
+      { size: 11.5, weight: 700, fill: "#ffc94d", anchor: "start" })
+      .setAttribute("transform", `rotate(-45 ${cx - Rr + 22} ${cy + Rr - 4})`);
+
+  /* half-plane captions */
+  txt(s, cx - 128, cy - Rr + 4, "pCO₂ FALLS", { size: 15, weight: 800, fill: "#5fe08a" });
+  txt(s, cx - 128, cy - Rr + 24, "the sea inhales CO₂", { size: 11.5, fill: "#5fe08a", opacity: .8 });
+  txt(s, cx + 136, cy + Rr + 8, "pCO₂ RISES", { size: 15, weight: 800, fill: "#ff7a5c" });
+  txt(s, cx + 136, cy + Rr + 28, "the sea exhales CO₂", { size: 11.5, fill: "#ff7a5c", opacity: .8 });
+
+  /* the vectors — angle is what matters, so all are drawn to equal length */
+  const V = [
+    { dic: 0,    ta: 2,   col: "#5fe08a", lab: "alkalinity addition",  st: "ΔTA +2, ΔDIC 0",     lr: 1 },
+    { dic: 1,    ta: 2,   col: "#35d0c0", lab: "CaCO₃ dissolution",    st: "ΔTA +2, ΔDIC +1",    lr: 1 },
+    { dic: 4,    ta: 4,   col: "#ffc94d", lab: "weathering products",  st: "ΔTA +4, ΔDIC +4",    lr: 1 },
+    { dic: -106, ta: 17,  col: "#a98cff", lab: "photosynthesis",       st: "ΔDIC −106, ΔTA +17", lr: -1 },
+    { dic: 106,  ta: -17, col: "#ff8fb8", lab: "remineralisation",     st: "ΔDIC +106, ΔTA −17", lr: 1 },
+    { dic: -1,   ta: -2,  col: "#ff7a5c", lab: "CALCIFICATION",        st: "ΔTA −2, ΔDIC −1",    lr: -1, big: 1 },
+    { dic: 1,    ta: 0,   col: "#8fa6bd", lab: "CO₂ dissolving in",    st: "ΔDIC +1, ΔTA 0",     lr: 1 },
+  ];
+  V.forEach(v => {
+    const m = Math.hypot(v.dic, v.ta);
+    const ux = v.dic / m, uy = v.ta / m;
+    const len = Rr - 12;
+    const ex = cx + ux * len, ey = cy - uy * len;
+    arrow(s, cx, cy, ex, ey, { color: v.col, w: v.big ? 4.4 : 3, head: v.big ? 15 : 12 });
+    const lx = cx + ux * (len + 24), ly = cy - uy * (len + 24);
+    const anchor = ux > 0.25 ? "start" : ux < -0.25 ? "end" : "middle";
+    txt(s, lx, ly, v.lab, { size: v.big ? 13.5 : 12.5, weight: v.big ? 800 : 700, fill: v.col, anchor });
+    txt(s, lx, ly + 16, v.st, { size: 10.5, fill: "#63809c", anchor, mono: true });
+  });
+
+  E("circle", { cx, cy, r: 6, fill: "#0e1e33", stroke: "#93abc4", "stroke-width": 2 }, s);
+  return s;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   FIGURE 5 · CALCIFICATION, ANIMATED — the paradox, atom by atom
+   ══════════════════════════════════════════════════════════════════════ */
+function drawCalcite(parent, cx, cy, s) {
+  const g = E("g", { transform: `translate(${cx},${cy}) scale(${s})` }, parent);
+  E("rect", { x: -78, y: -70, width: 156, height: 140, rx: 12,
+              fill: "rgba(95,224,138,.09)", stroke: "#5fe08a", "stroke-width": 2.4 }, g);
+  const cells = [[-38, -34], [38, -34], [-38, 34], [38, 34]];
+  cells.forEach((p, i) => {
+    if (i % 2 === 0) {
+      E("circle", { cx: p[0], cy: p[1], r: 17, fill: "#2c8a54", stroke: "#5fe08a", "stroke-width": 2 }, g);
+      txt(g, p[0], p[1] + 6, "Ca", { size: 15, weight: 800, fill: "#eafff2" });
+    } else {
+      E("circle", { cx: p[0], cy: p[1], r: 18, fill: "rgba(56,80,106,.9)", stroke: "#6d8dab", "stroke-width": 2 }, g);
+      txt(g, p[0], p[1] + 6, "CO₃", { size: 12, weight: 800, fill: "#e6f0fa" });
+    }
+  });
+  cells.forEach((p, i) => cells.forEach((q, j) => {
+    if (j > i && (p[0] === q[0] || p[1] === q[1]))
+      E("line", { x1: p[0], y1: p[1], x2: q[0], y2: q[1],
+                  stroke: "rgba(95,224,138,.45)", "stroke-width": 2, "stroke-dasharray": "4 4" }, g);
+  }));
+  txt(g, 0, 96, "CaCO₃ (s)", { size: 19, weight: 700, fill: "#5fe08a", mono: true });
+  txt(g, 0, 116, "solid calcite plate", { size: 11, fill: "#63809c" });
+  return g;
+}
+
+function figCalc(host) {
+  const W = 980, H = 430, s = svgRoot(host, W, H);
+  const y = 200;
+  const P = { ca: 90, b1: 232, b2: 374, arrow: 480, cal: 620, co2: 790, h2o: 910 };
+
+  txt(s, W / 2, 34, "Ca²⁺  +  2 HCO₃⁻   ⟶   CaCO₃(s)  +  CO₂  +  H₂O",
+      { size: 17, weight: 700, fill: "#e9f2fb", mono: true });
+  txt(s, W / 2, 56, "two carbons enter · one is buried · one walks out as gas",
+      { size: 12.5, fill: "#63809c" });
+
+  const G = {};
+  G.ca  = drawMol(s, "ca",   P.ca, y, 0.85);
+  G.b1  = drawMol(s, "hco3", P.b1, y, 0.72);
+  G.b2  = drawMol(s, "hco3", P.b2, y, 0.72);
+  /* intermediates */
+  G.co3 = drawMol(s, "co3",  P.b1, y, 0.72, { opacity: 0 });
+  G.h2c = drawMol(s, "h2co3", P.b2, y, 0.72, { opacity: 0 });
+  /* the travelling proton */
+  G.hp  = drawMol(s, "h",    P.b1 + 30, y + 62, 0.8, { opacity: 0, label: "H⁺" });
+  /* products */
+  G.arrow = arrow(s, P.arrow - 44, y, P.arrow + 44, y, { color: "#35d0c0", w: 4, head: 15 });
+  G.arrow.setAttribute("opacity", 0);
+  G.cal = drawCalcite(s, P.cal, y - 6, 0.8);   G.cal.setAttribute("opacity", 0);
+  G.co2 = drawMol(s, "co2",  P.co2, y - 40, 0.78, { opacity: 0, labelColor: "#ff7a5c" });
+  G.h2o = drawMol(s, "h2o",  P.h2o, y + 30, 0.7, { opacity: 0 });
+  /* the escape arrow for CO2 */
+  G.esc = arrow(s, P.co2, y - 108, P.co2, y - 158, { color: "#ff7a5c", w: 3, head: 12 });
+  G.esc.setAttribute("opacity", 0);
+  G.escT = txt(s, P.co2, y - 172, "back to the atmosphere", { size: 11.5, weight: 700, fill: "#ff7a5c" });
+  G.escT.setAttribute("opacity", 0);
+
+  /* running carbon tally */
+  const ty = H - 30;
+  panelRect(s, 30, ty - 26, 300, 40, { fill: "rgba(255,255,255,.03)", rx: 10 });
+  txt(s, 46, ty, "carbon in:", { size: 12, anchor: "start", fill: "#63809c", weight: 700 });
+  G.tallyIn = txt(s, 132, ty, "2 dissolved", { size: 13, anchor: "start", fill: "#35d0c0", weight: 800, mono: true });
+  panelRect(s, 350, ty - 26, 420, 40, { fill: "rgba(255,255,255,.03)", rx: 10 });
+  txt(s, 366, ty, "carbon out:", { size: 12, anchor: "start", fill: "#63809c", weight: 700 });
+  G.tallyOut = txt(s, 458, ty, "—", { size: 13, anchor: "start", fill: "#8fa6bd", weight: 800, mono: true });
+
+  [G.ca, G.b1, G.b2, G.co3, G.h2c, G.hp, G.cal, G.co2, G.h2o, G.arrow, G.esc, G.escT]
+    .forEach(g => { if (g) g.style.transition = "opacity .55s ease, transform .55s ease"; });
+
+  const STEPS = [
+    { lab: "A calcium ion and two bicarbonate ions drift together in surface water.",
+      set: () => { show(G, ["ca","b1","b2"]); hide(G, ["co3","h2c","hp","cal","co2","h2o","arrow","esc","escT"]);
+                   G.tallyOut.textContent = "—"; G.tallyOut.setAttribute("fill", "#8fa6bd"); } },
+    { lab: "One bicarbonate hands its proton to the other. This is the whole trick.",
+      set: () => { show(G, ["ca","b1","b2","hp"]); hide(G, ["co3","h2c","cal","co2","h2o","arrow","esc","escT"]);
+                   G.hp.setAttribute("transform", `translate(${P.b1 + 30},${y + 62}) scale(0.8)`);
+                   requestAnimationFrame(() => G.hp.setAttribute("transform",
+                     `translate(${P.b2 - 30},${y + 62}) scale(0.8)`)); } },
+    { lab: "Left ion becomes carbonate, CO₃²⁻. Right ion becomes carbonic acid, H₂CO₃.",
+      set: () => { show(G, ["ca","co3","h2c"]); hide(G, ["b1","b2","hp","cal","co2","h2o","arrow","esc","escT"]); } },
+    { lab: "Calcium seizes the carbonate. A solid calcite plate crystallises — one carbon locked away.",
+      set: () => { show(G, ["h2c","arrow","cal"]); hide(G, ["ca","b1","b2","co3","hp","co2","h2o","esc","escT"]);
+                   G.tallyOut.textContent = "1 locked in calcite"; G.tallyOut.setAttribute("fill", "#5fe08a"); } },
+    { lab: "The carbonic acid falls apart into CO₂ and water. The second carbon is now a gas.",
+      set: () => { show(G, ["arrow","cal","co2","h2o"]); hide(G, ["ca","b1","b2","co3","h2c","hp","esc","escT"]);
+                   G.tallyOut.textContent = "1 in calcite  +  1 as CO₂ gas"; G.tallyOut.setAttribute("fill", "#ffc94d"); } },
+    { lab: "That CO₂ equilibrates with the air within months. Net effect on the atmosphere: pCO₂ UP.",
+      set: () => { show(G, ["arrow","cal","co2","h2o","esc","escT"]); hide(G, ["ca","b1","b2","co3","h2c","hp"]);
+                   G.tallyOut.textContent = "1 buried  ·  1 released  →  pCO₂ RISES";
+                   G.tallyOut.setAttribute("fill", "#ff7a5c"); } },
+  ];
+  function show(g, keys) { keys.forEach(k => g[k] && g[k].setAttribute("opacity", 1)); }
+  function hide(g, keys) { keys.forEach(k => g[k] && g[k].setAttribute("opacity", 0)); }
+
+  return { svg: s, steps: STEPS };
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   FIGURE 6 · two pumps, opposite signs
+   ══════════════════════════════════════════════════════════════════════ */
+function figPumps(host) {
+  const W = 880, H = 430, s = svgRoot(host, W, H);
+  const seaY = 92;
+
+  /* sky + sea */
+  E("rect", { x: 0, y: 0, width: W, height: seaY, fill: "rgba(106,168,255,.07)" }, s);
+  E("line", { x1: 0, y1: seaY, x2: W, y2: seaY, stroke: "#6aa8ff", "stroke-width": 2, opacity: .55 }, s);
+  txt(s, 22, 30, "ATMOSPHERE", { size: 11, weight: 800, fill: "#6aa8ff", anchor: "start", ls: ".16em" });
+  txt(s, 22, H - 14, "DEEP OCEAN  ·  out of contact with the air for centuries",
+      { size: 11, weight: 700, fill: "#4b6a86", anchor: "start", ls: ".08em" });
+
+  function column(x0, w, col, title, sub, dir, mid, bottom, verdict) {
+    const g = E("g", {}, s);
+    panelRect(g, x0, seaY + 26, w, H - seaY - 76, { fill: `${col}0d`, stroke: `${col}55`, rx: 14 });
+    txt(g, x0 + w / 2, seaY + 56, title, { size: 15, weight: 800, fill: col });
+    txt(g, x0 + w / 2, seaY + 78, sub, { size: 11.5, fill: "#7e97b0" });
+
+    /* the gas-exchange arrow across the sea surface */
+    const ax = x0 + w / 2;
+    if (dir === "down") arrow(g, ax, seaY - 52, ax, seaY + 6, { color: col, w: 4, head: 14 });
+    else                arrow(g, ax, seaY + 6, ax, seaY - 52, { color: col, w: 4, head: 14 });
+    txt(g, ax, seaY - 64, dir === "down" ? "CO₂ pulled IN" : "CO₂ pushed OUT",
+        { size: 12, weight: 800, fill: col });
+
+    txt(g, x0 + w / 2, seaY + 132, mid, { size: 13, weight: 700, fill: "#cfe0f0", mono: true });
+    /* sinking particle */
+    const py = seaY + 168;
+    for (let i = 0; i < 3; i++) {
+      E("circle", { cx: x0 + w / 2 - 26 + i * 26, cy: py + i * 22, r: 9 - i,
+                    fill: `${col}44`, stroke: col, "stroke-width": 1.6 }, g);
+    }
+    arrow(g, x0 + w / 2, py + 62, x0 + w / 2, py + 106, { color: "#4b6a86", w: 2.4, head: 10, dash: "6 5" });
+    txt(g, x0 + w / 2, py + 128, bottom, { size: 11.5, fill: "#7e97b0" });
+    txt(g, x0 + w / 2, H - 54, verdict, { size: 12.5, weight: 800, fill: col, mono: true });
+    return g;
+  }
+  column(40, 380, "#5fe08a", "THE SOFT-TISSUE PUMP", "photosynthesis builds organic matter",
+         "down", "106 CO₂ → biomass", "sinks, decays, releases carbon at depth", "ΔDIC −106  ·  ΔTA +17  →  pCO₂ ↓");
+  column(460, 380, "#ff7a5c", "THE CARBONATE COUNTER-PUMP", "calcification builds mineral plates",
+         "up", "2 HCO₃⁻ → CaCO₃ + CO₂", "sinks as ballast, buries on geological time", "ΔDIC −1  ·  ΔTA −2  →  pCO₂ ↑");
+
+  txt(s, W / 2, seaY + 12, "same organism  ·  same water  ·  same moment",
+      { size: 11.5, fill: "#63809c", weight: 600 });
+  return s;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   FIGURE 7 · the rain-ratio tug of war
+   ══════════════════════════════════════════════════════════════════════ */
+function figRain(host, threshold) {
+  const W = 900, H = 360, s = svgRoot(host, W, H);
+  const L = 90, R = W - 60, y = 168, maxR = 2.5;
+  const X = r => L + (r / maxR) * (R - L);
+  const tx = X(threshold);
+
+  txt(s, W / 2, 34, "The competition, on one axis", { size: 15, weight: 700, fill: "#e9f2fb" });
+  txt(s, W / 2, 56, "how much calcite a community makes per unit of soft tissue decides its sign",
+      { size: 12, fill: "#63809c" });
+
+  /* the observed range for real coccolithophores */
+  const oa = X(0.17), ob = X(2.08);
+  E("rect", { x: oa, y: y - 74, width: ob - oa, height: 26, rx: 7,
+              fill: "rgba(169,140,255,.18)", stroke: "#a98cff", "stroke-width": 1.6 }, s);
+  txt(s, (oa + ob) / 2, y - 56, "measured range across coccolithophore species  ·  0.17 – 2.08",
+      { size: 11, weight: 700, fill: "#a98cff" });
+  const ta_ = X(0.16), tb_ = X(1.2);
+  E("rect", { x: ta_, y: y - 44, width: tb_ - ta_, height: 8, rx: 4, fill: "#a98cff", opacity: .85 }, s);
+  txt(s, (ta_ + tb_) / 2, y - 50, "where G. huxleyi usually sits", { size: 10, fill: "#cfe0f0", weight: 600 });
+
+  /* the two zones */
+  E("rect", { x: L, y: y - 22, width: tx - L, height: 62, rx: 10,
+              fill: "rgba(95,224,138,.13)", stroke: "#5fe08a", "stroke-width": 1.6 }, s);
+  E("rect", { x: tx, y: y - 22, width: R - tx, height: 62, rx: 10,
+              fill: "rgba(255,122,92,.13)", stroke: "#ff7a5c", "stroke-width": 1.6 }, s);
+  txt(s, (L + tx) / 2, y + 16, "NET CO₂ SINK", { size: 15, weight: 800, fill: "#5fe08a" });
+  txt(s, (tx + R) / 2, y + 16, "NET CO₂ SOURCE", { size: 15, weight: 800, fill: "#ff7a5c" });
+
+  E("line", { x1: tx, y1: y - 34, x2: tx, y2: y + 74, stroke: "#ffc94d", "stroke-width": 3 }, s);
+  txt(s, tx + 8, y + 92, "the tipping point = 1/ψ ≈ " + threshold,
+      { size: 12.5, weight: 800, fill: "#ffc94d", mono: true, anchor: "start" });
+  arrow(s, tx - 10, y + 88, tx - 66, y + 88, { color: "#ffc94d", w: 2, head: 9 });
+
+  /* axis */
+  E("line", { x1: L, y1: y + 56, x2: R, y2: y + 56, stroke: "#3a5a7c", "stroke-width": 1.5 }, s);
+  for (let r = 0; r <= maxR + .001; r += 0.5) {
+    E("line", { x1: X(r), y1: y + 56, x2: X(r), y2: y + 64, stroke: "#3a5a7c", "stroke-width": 1.5 }, s);
+    txt(s, X(r), y + 80, r.toFixed(1), { size: 11.5, fill: "#63809c", mono: true });
+  }
+  txt(s, (L + R) / 2, H - 34, "rain ratio  —  PIC : POC  (mineral carbon per organic carbon)",
+      { size: 12.5, fill: "#93abc4", weight: 600 });
+  txt(s, (L + R) / 2, H - 14,
+      "ψ ≈ 0.6 mol CO₂ released per mol CaCO₃ · the threshold is its reciprocal · both drift as the ocean acidifies",
+      { size: 11, fill: "#63809c" });
+  return s;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   FIGURE 8 · depth is durability — the Martin curve + ventilation bands
+   ══════════════════════════════════════════════════════════════════════ */
+function figDepth(host, bands) {
+  const W = 900, H = 520, s = svgRoot(host, W, H);
+  const L = 96, R = 430, T = 66, B = H - 70;
+  const zmax = 4000, z0 = 100, b = 0.86;
+  const Y = z => T + (z / zmax) * (B - T);
+  const X = f => L + f * (R - L);
+
+  /* sea surface */
+  E("rect", { x: L, y: T - 26, width: R - L, height: 26, fill: "rgba(106,168,255,.10)" }, s);
+  txt(s, (L + R) / 2, T - 8, "sea surface", { size: 11, weight: 700, fill: "#6aa8ff", ls: ".1em" });
+
+  /* water column */
+  E("rect", { x: L, y: T, width: R - L, height: B - T, fill: "url(#seagrad)" }, s);
+  const defs = E("defs", {}, s);
+  const lg = E("linearGradient", { id: "seagrad", x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
+  E("stop", { offset: "0%",  "stop-color": "#16405f", "stop-opacity": .55 }, lg);
+  E("stop", { offset: "100%", "stop-color": "#050c16", "stop-opacity": .85 }, lg);
+
+  /* the Martin curve: F(z) = F100 * (z/100)^-b */
+  let d = "";
+  for (let z = z0; z <= zmax; z += 20) {
+    const f = Math.pow(z / z0, -b);
+    d += (d ? " L" : "M") + X(f).toFixed(1) + "," + Y(z).toFixed(1);
+  }
+  E("path", { d, fill: "none", stroke: "#35d0c0", "stroke-width": 3.4, "stroke-linecap": "round" }, s);
+  txt(s, X(0.62), Y(300), "sinking flux", { size: 12.5, weight: 800, fill: "#35d0c0", anchor: "start" });
+  txt(s, X(0.62), Y(300) + 17, "F(z) = F₁₀₀ · (z/100)^−0.86", { size: 10.5, fill: "#63809c", anchor: "start", mono: true });
+
+  /* depth ticks */
+  [0, 500, 1000, 2000, 3000, 4000].forEach(z => {
+    E("line", { x1: L - 7, y1: Y(z), x2: L, y2: Y(z), stroke: "#3a5a7c", "stroke-width": 1.5 }, s);
+    txt(s, L - 14, Y(z) + 4, z + " m", { size: 11, anchor: "end", fill: "#63809c", mono: true });
+  });
+  /* flux axis */
+  [0, .25, .5, .75, 1].forEach(f => {
+    txt(s, X(f), B + 20, (f * 100) + "%", { size: 10.5, fill: "#63809c", mono: true });
+  });
+  txt(s, (L + R) / 2, B + 42, "fraction of export flux surviving", { size: 11.5, fill: "#93abc4", weight: 600 });
+
+  /* thermocline */
+  E("line", { x1: L, y1: Y(200), x2: R + 380, y2: Y(200), stroke: "#ffc94d",
+              "stroke-width": 2, "stroke-dasharray": "8 6", opacity: .8 }, s);
+  txt(s, R + 376, Y(200) - 9, "the thermocline — below here, surface mixing largely stops",
+      { size: 11, weight: 700, fill: "#ffc94d", anchor: "end" });
+
+  /* durability bands on the right */
+  const BX = R + 48;
+  bands.forEach(bd => {
+    const y1 = Y(bd.top), y2 = Y(bd.bot);
+    E("rect", { x: BX, y: y1, width: W - BX - 30, height: Math.max(y2 - y1, 34), rx: 9,
+                fill: `${bd.col}12`, stroke: `${bd.col}66`, "stroke-width": 1.5 }, s);
+    txt(s, BX + 16, y1 + 24, bd.depth, { size: 12, weight: 800, fill: bd.col, anchor: "start", mono: true });
+    txt(s, W - 44, y1 + 24, bd.dur, { size: 13, weight: 800, fill: "#e9f2fb", anchor: "end" });
+    txt(s, BX + 16, y1 + 43, bd.note, { size: 10.8, fill: "#7e97b0", anchor: "start" });
+  });
+  txt(s, BX, T - 8, "HOW LONG THE CARBON STAYS OUT OF THE AIR",
+      { size: 10.5, weight: 800, fill: "#63809c", anchor: "start", ls: ".12em" });
+  txt(s, W / 2, 30, "Most of what sinks never gets deep — and depth is the only thing that buys time",
+      { size: 14, weight: 700, fill: "#e9f2fb" });
+  return s;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   FIGURE 9 · the Gigablue-style particle concept
+   ══════════════════════════════════════════════════════════════════════ */
+function figParticle(host) {
+  const W = 900, H = 470, s = svgRoot(host, W, H);
+  const seaY = 78;
+  E("rect", { x: 0, y: 0, width: W, height: seaY, fill: "rgba(106,168,255,.07)" }, s);
+  E("line", { x1: 0, y1: seaY, x2: W, y2: seaY, stroke: "#6aa8ff", "stroke-width": 2, opacity: .5 }, s);
+  txt(s, 22, 28, "ATMOSPHERE", { size: 11, weight: 800, fill: "#6aa8ff", anchor: "start", ls: ".16em" });
+
+  const stages = [
+    { x: 130, t: "1 · DEPLOY", d: "an engineered particle is released\nat the surface from a vessel", col: "#35d0c0" },
+    { x: 350, t: "2 · GROW",   d: "algae colonise it and photosynthesise,\ndrawing down dissolved carbon", col: "#5fe08a" },
+    { x: 570, t: "3 · SINK",   d: "the loaded particle becomes negatively\nbuoyant and descends", col: "#ffc94d" },
+    { x: 790, t: "4 · STORE",  d: "carbon arrives below the thermocline\nand, the claim goes, stays", col: "#a98cff" },
+  ];
+  stages.forEach((st, i) => {
+    const y = seaY + 90 + i * 46;
+    E("circle", { cx: st.x, cy: y, r: 30 - i * 1.5, fill: `${st.col}22`, stroke: st.col, "stroke-width": 2.4 }, s);
+    /* algae dots growing on the particle */
+    for (let k = 0; k < i * 4; k++) {
+      const a = (k / (i * 4)) * Math.PI * 2;
+      E("circle", { cx: st.x + Math.cos(a) * (30 - i * 1.5), cy: y + Math.sin(a) * (30 - i * 1.5),
+                    r: 4.5, fill: "#5fe08a", opacity: .85 }, s);
+    }
+    txt(s, st.x, y + 58, st.t, { size: 12, weight: 800, fill: st.col, ls: ".08em" });
+    st.d.split("\n").forEach((ln, j) =>
+      txt(s, st.x, y + 78 + j * 15, ln, { size: 10.8, fill: "#7e97b0" }));
+    if (i < 3) arrow(s, st.x + 44, y + 8, stages[i + 1].x - 44, y + 38,
+                     { color: "#3a5a7c", w: 2.2, head: 9, dash: "6 5" });
+  });
+
+  /* the air-sea inhale that must happen for any of this to count */
+  arrow(s, 350, seaY - 44, 350, seaY + 4, { color: "#ff7a5c", w: 3.4, head: 13 });
+  txt(s, 350, seaY - 56, "this inhale is the ONLY thing that removes CO₂ from the air",
+      { size: 11.5, weight: 800, fill: "#ff7a5c" });
+  txt(s, 350, seaY - 72, "— and it is what must be measured, not modelled away —",
+      { size: 10.5, fill: "#63809c" });
+
+  E("line", { x1: 0, y1: H - 66, x2: W, y2: H - 66, stroke: "#a98cff", "stroke-width": 2, "stroke-dasharray": "8 6", opacity: .6 }, s);
+  txt(s, 22, H - 74, "below the thermocline", { size: 11, weight: 700, fill: "#a98cff", anchor: "start", ls: ".1em" });
+  txt(s, W / 2, H - 34, "The open questions are not about steps 1–3. They are about step 4, and about the inhale.",
+      { size: 12.5, weight: 700, fill: "#93abc4" });
+  return s;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   FIGURE 10 · Redfield photosynthesis
+   ══════════════════════════════════════════════════════════════════════ */
+function drawCell(parent, cx, cy, s) {
+  const g = E("g", { transform: `translate(${cx},${cy}) scale(${s})` }, parent);
+  E("ellipse", { cx: 0, cy: 0, rx: 62, ry: 48, fill: "rgba(95,224,138,.16)",
+                 stroke: "#5fe08a", "stroke-width": 2.6 }, g);
+  [[-24,-14],[18,-20],[-8,16],[30,10],[-38,8]].forEach(p =>
+    E("ellipse", { cx: p[0], cy: p[1], rx: 13, ry: 8, fill: "rgba(95,224,138,.45)",
+                   stroke: "#5fe08a", "stroke-width": 1.4,
+                   transform: `rotate(${p[0] * 1.4} ${p[0]} ${p[1]})` }, g));
+  txt(g, 0, 74, "organic matter", { size: 17, weight: 700, fill: "#5fe08a", mono: true });
+  txt(g, 0, 93, "C₁₀₆H₁₇₅O₄₂N₁₆P", { size: 12, fill: "#7e97b0", mono: true });
+  return g;
+}
+
+function figRedfield(host) {
+  const W = 940, H = 330, s = svgRoot(host, W, H);
+  const y = 150;
+  txt(s, W / 2, 34, "106 CO₂  +  16 NO₃⁻  +  HPO₄²⁻  +  H₂O  +  light  ⟶  organic matter  +  138 O₂",
+      { size: 14.5, weight: 700, fill: "#e9f2fb", mono: true });
+  txt(s, W / 2, 56, "the Redfield stoichiometry of plankton growth", { size: 12, fill: "#63809c" });
+
+  txt(s, 96, y - 66, "106", { size: 28, weight: 800, fill: "#ffc94d", mono: true });
+  drawMol(s, "co2", 128, y, 0.66, { labelColor: "#ff7a5c" });
+  plus(s, 218, y);
+  txt(s, 268, y - 66, "16", { size: 28, weight: 800, fill: "#ffc94d", mono: true });
+  drawMol(s, "no3", 306, y, 0.66, { labelColor: "#6aa8ff" });
+  plus(s, 396, y);
+  drawMol(s, "h2o", 452, y, 0.62);
+
+  arrow(s, 528, y, 616, y, { color: "#5fe08a", w: 4, head: 15 });
+  txt(s, 572, y - 22, "PHOTOSYNTHESIS", { size: 11, weight: 800, fill: "#5fe08a", ls: ".1em" });
+  txt(s, 572, y + 30, "sunlight", { size: 11, fill: "#63809c" });
+
+  drawCell(s, 712, y, 0.86);
+  plus(s, 820, y);
+  txt(s, 856, y - 56, "138", { size: 24, weight: 800, fill: "#ffc94d", mono: true });
+  drawMol(s, "o2", 892, y, 0.66);
+
+  /* the ledger read-out */
+  const by = H - 26;
+  panelRect(s, 190, by - 30, 250, 44, { fill: "rgba(95,224,138,.10)", stroke: "#5fe08a", rx: 10 });
+  txt(s, 315, by - 2, "ΔDIC  −106", { size: 15, weight: 800, fill: "#5fe08a", mono: true });
+  panelRect(s, 470, by - 30, 250, 44, { fill: "rgba(53,208,192,.10)", stroke: "#35d0c0", rx: 10 });
+  txt(s, 595, by - 2, "ΔTA  +17", { size: 15, weight: 800, fill: "#35d0c0", mono: true });
+  txt(s, 770, by - 2, "→  pCO₂ ↓↓", { size: 14, weight: 800, fill: "#5fe08a", anchor: "start", mono: true });
+  return s;
+}
+/* ══════════════════════════════════════════════════════════════════════
+   BOOT — render every figure, wire the reaction player, fill the tables
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── the small molecules on the anion cards ── */
+document.querySelectorAll("[data-mol]").forEach(host => {
+  const key = host.getAttribute("data-mol");
+  const s = svgRoot(host, 132, 104);
+  drawMol(s, key, 66, 46, 0.5, { label: false });
+});
+
+/* ── section 1 ── */
+figBeam(document.getElementById("fig-beam"));
+
+/* ── section 3 ── */
+figLadder(document.getElementById("fig-ladder"));
+figBjerrum(document.getElementById("fig-bjerrum"));
+
+/* ── section 4 · the master map ── */
+figPlane(document.getElementById("fig-plane"));
+
+/* ── section 5 · the animated calcification ── */
+(function () {
+  const host = document.getElementById("fig-calc");
+  const { steps } = figCalc(host);
+  const lab   = document.getElementById("calc-lab");
+  const dots  = document.getElementById("calc-dots");
+  const play  = document.getElementById("calc-play");
+  const stepB = document.getElementById("calc-step");
+
+  steps.forEach(() => dots.appendChild(document.createElement("i")));
+  const pips = dots.querySelectorAll("i");
+
+  let i = 0, timer = null;
+  function go(n) {
+    i = ((n % steps.length) + steps.length) % steps.length;
+    steps[i].set();
+    lab.innerHTML = "<b>" + (i + 1) + "/" + steps.length + "</b> &nbsp;" + steps[i].lab;
+    pips.forEach((p, k) => p.classList.toggle("on", k === i));
+  }
+  function stop() {
+    if (timer) { clearInterval(timer); timer = null; }
+    play.innerHTML = "&#9654;&nbsp; Play the reaction";
+  }
+  play.addEventListener("click", () => {
+    if (timer) { stop(); return; }
+    if (i === steps.length - 1) go(0);
+    play.innerHTML = "&#10073;&#10073;&nbsp; Pause";
+    timer = setInterval(() => {
+      if (i === steps.length - 1) { stop(); return; }
+      go(i + 1);
+    }, 2400);
+  });
+  stepB.addEventListener("click", () => { stop(); go(i + 1); });
+  go(0);
+})();
+
+/* ── section 5 · the two pumps ── */
+figPumps(document.getElementById("fig-pumps"));
+
+/* ── section 6 · the rock routes ── */
+reactionRow(document.getElementById("fig-olivine"), {
+  title: "Mg₂SiO₄  +  4 CO₂  +  4 H₂O   ⟶   2 Mg²⁺  +  4 HCO₃⁻  +  H₄SiO₄",
+  sub: "one formula unit of forsterite olivine captures four molecules of CO₂",
+  scale: 0.60, slotW: 158, rowY: 148, h: 296, minW: 900,
+  arrowColor: "#ffc94d", arrowLabel: "DISSOLUTION", arrowSub: "slow · surface-area limited",
+  left: [
+    { mol: "olivine", tag: "the mineral", tagColor: "#ffc94d" },
+    { mol: "co2", n: 4, tag: "from the air", tagColor: "#ff7a5c" },
+    { mol: "h2o", n: 4 },
+  ],
+  right: [
+    { mol: "mg", n: 2, tag: "spectator cation", tagColor: "#35d0c0" },
+    { mol: "hco3", n: 4, tag: "ALKALINITY, +4", tagColor: "#5fe08a" },
+    { mol: "h4sio4", tag: "dissolved silica" },
+  ],
+  foot: "ΔTA +4   ·   ΔDIC +4   ·   4 CO₂ removed from the atmosphere per formula unit",
+  footColor: "#5fe08a",
+});
+
+reactionRow(document.getElementById("fig-carbwx"), {
+  title: "CaCO₃  +  CO₂  +  H₂O   ⟶   Ca²⁺  +  2 HCO₃⁻",
+  sub: "the coccolithophore reaction, with the arrow reversed",
+  scale: 0.62, slotW: 156, rowY: 142, h: 286, minW: 800,
+  arrowColor: "#35d0c0", arrowLabel: "DISSOLUTION",
+  left: [
+    { mol: "co3", label: "CaCO₃", tag: "limestone", tagColor: "#5fe08a" },
+    { mol: "co2", tag: "from the air", tagColor: "#ff7a5c" },
+    { mol: "h2o" },
+  ],
+  right: [
+    { mol: "ca", tag: "spectator cation", tagColor: "#35d0c0" },
+    { mol: "hco3", n: 2, tag: "ALKALINITY, +2", tagColor: "#5fe08a" },
+  ],
+  foot: "ΔTA +2   ·   ΔDIC +1   ·   only ONE net CO₂ removed — half the product carbon came from the rock",
+  footColor: "#ffc94d",
+});
+
+/* OAE is two steps, stacked */
+(function () {
+  const host = document.getElementById("fig-oae");
+  reactionRow(host, {
+    title: "STEP 1 · the alkalinity lands",
+    sub: "hydroxide converts bicarbonate into carbonate, and free CO₂ in the water collapses",
+    scale: 0.60, slotW: 150, rowY: 138, h: 262, minW: 760,
+    arrowColor: "#5fe08a", arrowLabel: "INSTANT",
+    left: [
+      { mol: "oh", tag: "added alkalinity", tagColor: "#5fe08a" },
+      { mol: "hco3" },
+    ],
+    right: [
+      { mol: "co3", tag: "worth TWO units of TA", tagColor: "#5fe08a" },
+      { mol: "h2o" },
+    ],
+    foot: "seawater pCO₂ drops — a gradient opens across the sea surface",
+    footColor: "#93abc4",
+  });
+  reactionRow(host, {
+    title: "STEP 2 · the atmosphere refills it — THIS is the removal",
+    sub: "over the following months, CO₂ crosses the sea surface to restore equilibrium",
+    scale: 0.60, slotW: 150, rowY: 138, h: 268, minW: 760,
+    arrowColor: "#ff7a5c", arrowLabel: "MONTHS", arrowSub: "air–sea gas exchange",
+    left: [
+      { mol: "co2", tag: "OUT OF THE ATMOSPHERE", tagColor: "#ff7a5c" },
+      { mol: "co3" },
+      { mol: "h2o" },
+    ],
+    right: [
+      { mol: "hco3", n: 2, tag: "stored for ~100,000 years", tagColor: "#35d0c0" },
+    ],
+    foot: "net:  CO₂  +  OH⁻   ⟶   HCO₃⁻      ·      roughly 0.8 mol CO₂ absorbed per mol of alkalinity added",
+    footColor: "#5fe08a",
+  });
+})();
+
+/* ── section 7 · the living route ── */
+figRedfield(document.getElementById("fig-redfield"));
+figDepth(document.getElementById("fig-depth"), DATA.depthBands);
+
+/* ── section 8 · the rain ratio ── */
+figRain(document.getElementById("fig-rain"), DATA.rainThreshold);
+
+/* ── section 9 · the comparison table ── */
+(function () {
+  const tb = document.getElementById("cmp-body");
+  DATA.compare.forEach(r => {
+    const tr = document.createElement("tr");
+    const dirColor = r.dir === "up" ? "#5fe08a" : r.dir === "down" ? "#ff7a5c" : "#ffc94d";
+    tr.innerHTML =
+      '<td><strong style="color:#e9f2fb">' + r.method + "</strong></td>" +
+      "<td>" + r.mechanism + "</td>" +
+      '<td><span class="m" style="color:' + dirColor + '">' + r.ledger + "</span></td>" +
+      '<td><span class="m">' + r.co2 + "</span></td>" +
+      "<td>" + r.durability + "</td>" +
+      "<td>" + r.maturity + "</td>" +
+      '<td style="color:#9fb6cc">' + r.doubt + "</td>";
+    tb.appendChild(tr);
+  });
+})();
+
+/* ── section 10 · the particle concept ── */
+(function () {
+  const h = document.getElementById("fig-particle");
+  if (h) figParticle(h);
+})();
+
+/* ── section 10 · Gigablue content ── */
+(function () {
+  const G = DATA.gigablue;
+  const fill = (id, items) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    items.forEach(t => { const li = document.createElement("li"); li.innerHTML = t; el.appendChild(li); });
+  };
+  fill("gb-says", G.says);
+  fill("gb-doc",  G.doc);
+  fill("gb-open", G.open);
+
+  const crit = document.getElementById("gb-crit");
+  if (crit) G.crit.forEach(c => {
+    const bq = document.createElement("blockquote");
+    bq.innerHTML = "“" + c.q + "”<cite><strong style='color:#d2dfee'>" + c.who +
+                   "</strong> · " + c.aff + " · " + c.src + "</cite>";
+    crit.appendChild(bq);
+  });
+})();
+
+/* ── glossary ── */
+(function () {
+  const g = document.getElementById("gloss");
+  if (!g) return;
+  DATA.glossary.forEach(x => {
+    const d = document.createElement("div");
+    d.className = "panel tight";
+    d.style.margin = "0";
+    d.innerHTML = "<div style='font-weight:700;color:var(--teal);font-size:14.5px;margin-bottom:7px'>" +
+                  x.t + "</div><div style='font-size:13.5px;color:#b9cbdd;line-height:1.55'>" + x.d + "</div>";
+    g.appendChild(d);
+  });
+})();
+
+/* ── sources ── */
+(function () {
+  const s = document.getElementById("srcs");
+  if (!s) return;
+  DATA.sources.forEach(x => {
+    const a = document.createElement("a");
+    a.href = x.u; a.target = "_blank"; a.rel = "noreferrer";
+    a.textContent = x.t;
+    s.appendChild(a);
+  });
+})();
+
+/* ── the companion videos (listed, not embedded — this page is sandboxed) ── */
+(function () {
+  const v = document.getElementById("vidlist");
+  if (!v) return;
+  DATA.videos.forEach(x => {
+    const d = document.createElement("div");
+    d.className = "panel tight";
+    d.style.margin = "0";
+    d.innerHTML =
+      "<div style='font-weight:700;color:#e9f2fb;font-size:14.5px;margin-bottom:5px'>▶ " + x.t + "</div>" +
+      "<div style='font-size:12px;color:var(--teal);margin-bottom:8px'>" + x.by + "</div>" +
+      "<div style='font-size:12.5px;color:#9fb6cc;line-height:1.5'>" + x.why + "</div>" +
+      "<a href='https://www.youtube.com/watch?v=" + x.id + "' target='_blank' rel='noreferrer' " +
+      "style='display:inline-block;font-family:var(--mono);font-size:11px;color:var(--blue);margin-top:9px'>" +
+      "youtube.com/watch?v=" + x.id + " ↗</a>";
+    v.appendChild(d);
+  });
+})();
+
+/* ── section 10 · the measurement problem ── */
+(function () {
+  const st = document.getElementById("mrv-stats");
+  if (st && DATA.mrv) DATA.mrv.stats.forEach(x => {
+    const d = document.createElement("div");
+    d.className = "stat";
+    d.innerHTML = "<div class='sv'>" + x.v + "</div><div class='sl'>" + x.l +
+                  "</div><div class='sn'>" + x.n + "</div>";
+    st.appendChild(d);
+  });
+  const nt = document.getElementById("mrv-notes");
+  if (nt && DATA.mrv) DATA.mrv.notes.forEach(t => {
+    const li = document.createElement("li"); li.innerHTML = t; nt.appendChild(li);
+  });
+})();
+
+</script>
+
+</body>
+</html>
